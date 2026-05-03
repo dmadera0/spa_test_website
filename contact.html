@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- =====================================================
+       Serenity Spa & Wellness — Contact Page
+       Contact form with validation, hours, location
+       ===================================================== -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Book an appointment or contact Serenity Spa & Wellness in Portland, OR. Call (555) 123-4567 or email hello@serenity-spa.com. Open Mon–Sun." />
+  <title>Contact & Booking | Serenity Spa & Wellness</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>" />
+</head>
+<body>
+
+  <!-- ===================== NAVIGATION ===================== -->
+  <header>
+    <nav class="nav" role="navigation" aria-label="Main navigation">
+      <div class="container nav-inner">
+        <a href="index.html" class="nav-logo" aria-label="Serenity Spa & Wellness — Home">
+          <div class="nav-logo-icon" aria-hidden="true">🌿</div>
+          <div class="nav-logo-text">
+            <span class="nav-logo-name">Serenity</span>
+            <span class="nav-logo-tag">Spa & Wellness</span>
+          </div>
+        </a>
+        <button class="nav-toggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="nav-links">
+          <span></span><span></span><span></span>
+        </button>
+        <ul class="nav-links" id="nav-links" role="menubar">
+          <li role="none"><a href="index.html"      class="nav-link" role="menuitem">Home</a></li>
+          <li role="none"><a href="treatments.html" class="nav-link" role="menuitem">Treatments</a></li>
+          <li role="none"><a href="services.html"   class="nav-link" role="menuitem">Memberships</a></li>
+          <li role="none"><a href="about.html"      class="nav-link" role="menuitem">About</a></li>
+          <li role="none"><a href="faq.html"        class="nav-link" role="menuitem">FAQ</a></li>
+          <li role="none"><a href="contact.html"    class="nav-link nav-cta active" role="menuitem" aria-current="page">Book Now</a></li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main-content">
+
+    <!-- ==================== PAGE HERO ==================== -->
+    <section class="page-hero" aria-label="Contact page header">
+      <div class="container">
+        <div class="page-hero-label">Get in Touch</div>
+        <h1>Book Your Appointment</h1>
+        <p>
+          Ready to experience Serenity? Fill out the form below, call us,
+          or stop by our Portland studio — we'd love to meet you.
+        </p>
+      </div>
+    </section>
+
+
+    <!-- ==================== CONTACT SECTION ==================== -->
+    <section class="section" aria-labelledby="contact-heading">
+      <div class="container">
+        <h2 class="sr-only" id="contact-heading">Contact Information and Booking Form</h2>
+
+        <div class="contact-grid">
+
+          <!-- LEFT: Contact Info -->
+          <div>
+            <div class="contact-info-card">
+
+              <!-- Location -->
+              <div class="contact-info-section">
+                <div class="contact-info-title">📍 Location</div>
+                <address style="font-style: normal;">
+                  <div class="contact-info-row">
+                    <div class="contact-info-icon" aria-hidden="true">📍</div>
+                    <div>
+                      <strong>Serenity Spa & Wellness</strong><br />
+                      2847 Wellness Drive<br />
+                      Portland, OR 97214<br />
+                      <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer"
+                         style="font-size: var(--fs-sm); color: var(--clr-primary);">
+                        Get Directions →
+                      </a>
+                    </div>
+                  </div>
+                </address>
+
+                <!-- Map placeholder -->
+                <div class="map-placeholder" role="img" aria-label="Map showing Serenity Spa location at 2847 Wellness Drive, Portland OR">
+                  <div class="map-emoji" aria-hidden="true">🗺️</div>
+                  <div>2847 Wellness Drive, Portland, OR</div>
+                  <a href="https://maps.google.com/?q=2847+Wellness+Drive+Portland+OR+97214"
+                     target="_blank" rel="noopener noreferrer"
+                     class="btn btn-outline btn-sm" style="margin-top: var(--sp-2);">
+                    Open in Google Maps
+                  </a>
+                </div>
+              </div>
+
+              <!-- Phone & Email -->
+              <div class="contact-info-section">
+                <div class="contact-info-title">📞 Phone & Email</div>
+                <div class="contact-info-row">
+                  <div class="contact-info-icon" aria-hidden="true">📞</div>
+                  <div>
+                    <a href="tel:5551234567" style="color: var(--clr-text); font-weight: var(--fw-medium);">(555) 123-4567</a><br />
+                    <span style="font-size: var(--fs-xs); color: var(--clr-text-muted);">Call or text us anytime during business hours</span>
+                  </div>
+                </div>
+                <div class="contact-info-row">
+                  <div class="contact-info-icon" aria-hidden="true">✉️</div>
+                  <div>
+                    <a href="mailto:hello@serenity-spa.com" style="color: var(--clr-primary);">hello@serenity-spa.com</a><br />
+                    <span style="font-size: var(--fs-xs); color: var(--clr-text-muted);">We respond within 4 hours during business hours</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Hours -->
+              <div class="contact-info-section">
+                <div class="contact-info-title">🕐 Business Hours</div>
+                <div class="hours-table" role="table" aria-label="Business hours">
+                  <div class="hours-row" role="row">
+                    <span class="hours-day" role="cell">Monday</span>
+                    <span role="cell">9:00 AM – 8:00 PM</span>
+                  </div>
+                  <div class="hours-row" role="row">
+                    <span class="hours-day" role="cell">Tuesday</span>
+                    <span role="cell">9:00 AM – 8:00 PM</span>
+                  </div>
+                  <div class="hours-row" role="row">
+                    <span class="hours-day" role="cell">Wednesday</span>
+                    <span role="cell">9:00 AM – 8:00 PM</span>
+                  </div>
+                  <div class="hours-row" role="row">
+                    <span class="hours-day" role="cell">Thursday</span>
+                    <span role="cell">9:00 AM – 8:00 PM</span>
+                  </div>
+                  <div class="hours-row" role="row">
+                    <span class="hours-day" role="cell">Friday</span>
+                    <span role="cell">9:00 AM – 8:00 PM</span>
+                  </div>
+                  <div class="hours-row" role="row">
+                    <span class="hours-day" role="cell">Saturday</span>
+                    <span role="cell">10:00 AM – 6:00 PM</span>
+                  </div>
+                  <div class="hours-row" role="row">
+                    <span class="hours-day" role="cell">Sunday</span>
+                    <span role="cell">10:00 AM – 6:00 PM</span>
+                  </div>
+                  <div class="hours-row" role="row" style="margin-top: var(--sp-2);">
+                    <span class="hours-day" role="cell">Holidays</span>
+                    <span role="cell">By Appointment</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Social -->
+              <div>
+                <div class="contact-info-title">🌐 Follow Us</div>
+                <div style="display: flex; gap: var(--sp-3); flex-wrap: wrap;">
+                  <a href="#" style="display: flex; align-items: center; gap: var(--sp-2); font-size: var(--fs-sm); color: var(--clr-text-light); padding: var(--sp-2) var(--sp-3); background: var(--clr-bg-alt); border-radius: var(--radius-md); text-decoration: none;" aria-label="Instagram">
+                    📷 Instagram
+                  </a>
+                  <a href="#" style="display: flex; align-items: center; gap: var(--sp-2); font-size: var(--fs-sm); color: var(--clr-text-light); padding: var(--sp-2) var(--sp-3); background: var(--clr-bg-alt); border-radius: var(--radius-md); text-decoration: none;" aria-label="Facebook">
+                    📘 Facebook
+                  </a>
+                  <a href="#" style="display: flex; align-items: center; gap: var(--sp-2); font-size: var(--fs-sm); color: var(--clr-text-light); padding: var(--sp-2) var(--sp-3); background: var(--clr-bg-alt); border-radius: var(--radius-md); text-decoration: none;" aria-label="Pinterest">
+                    📌 Pinterest
+                  </a>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- RIGHT: Booking Form -->
+          <div>
+            <div class="contact-form-card">
+              <h2 style="font-family: var(--font-serif); font-size: var(--fs-2xl); color: var(--clr-primary-dark); margin-bottom: var(--sp-2);">Request an Appointment</h2>
+              <p style="font-size: var(--fs-sm); color: var(--clr-text-light); margin-bottom: var(--sp-6);">
+                Fill out the form and we'll confirm your appointment within 2–4 hours via email or phone.
+                New clients receive <strong>20% off</strong> their first treatment!
+              </p>
+
+              <!-- Contact form — no backend required; JS handles submission -->
+              <form id="contact-form" novalidate aria-label="Appointment booking form">
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label required" for="first-name">First Name</label>
+                    <input
+                      type="text"
+                      id="first-name"
+                      name="first_name"
+                      class="form-control"
+                      placeholder="Jane"
+                      data-validate="required"
+                      autocomplete="given-name"
+                      aria-required="true"
+                    />
+                    <span class="form-error" id="first-name-error" role="alert"></span>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label required" for="last-name">Last Name</label>
+                    <input
+                      type="text"
+                      id="last-name"
+                      name="last_name"
+                      class="form-control"
+                      placeholder="Smith"
+                      data-validate="required"
+                      autocomplete="family-name"
+                      aria-required="true"
+                    />
+                    <span class="form-error" id="last-name-error" role="alert"></span>
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label required" for="email">Email Address</label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      class="form-control"
+                      placeholder="jane@example.com"
+                      data-validate="required|email"
+                      autocomplete="email"
+                      aria-required="true"
+                    />
+                    <span class="form-error" id="email-error" role="alert"></span>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="phone">Phone Number</label>
+                    <input
+                      type="tel"
+                      id="phone"
+                      name="phone"
+                      class="form-control"
+                      placeholder="(555) 000-0000"
+                      data-validate="phone"
+                      autocomplete="tel"
+                    />
+                    <span class="form-error" id="phone-error" role="alert"></span>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label required" for="service">Treatment of Interest</label>
+                  <select
+                    id="service"
+                    name="service"
+                    class="form-control"
+                    data-validate="required"
+                    aria-required="true"
+                  >
+                    <option value="" disabled selected>Select a treatment…</option>
+                    <optgroup label="Massage Therapy">
+                      <option value="swedish-60">Swedish Massage (60 min) — $85</option>
+                      <option value="swedish-90">Swedish Massage (90 min) — $125</option>
+                      <option value="deep-tissue">Deep Tissue Massage (60 min) — $100</option>
+                      <option value="hot-stone">Hot Stone Therapy (60 min) — $120</option>
+                      <option value="thai">Thai Massage (60 min) — $95</option>
+                    </optgroup>
+                    <optgroup label="Skin Care">
+                      <option value="hydrating-facial">Hydrating Facial (60 min) — $95</option>
+                      <option value="anti-aging-facial">Anti-Aging Facial (60 min) — $125</option>
+                      <option value="chemical-peel">Chemical Peel (45 min) — $110</option>
+                      <option value="microdermabrasion">Microdermabrasion (45 min) — $115</option>
+                    </optgroup>
+                    <optgroup label="Wellness">
+                      <option value="reflexology">Reflexology (60 min) — $80</option>
+                      <option value="meditation">Meditation Session (45 min) — $65</option>
+                      <option value="aromatherapy">Aromatherapy (30 min) — $75</option>
+                      <option value="body-wrap">Body Wrap (60 min) — $105</option>
+                    </optgroup>
+                    <optgroup label="Other">
+                      <option value="membership">Membership Inquiry</option>
+                      <option value="gift-card">Gift Card Purchase</option>
+                      <option value="corporate">Corporate Wellness Inquiry</option>
+                      <option value="other">Other / Not Sure Yet</option>
+                    </optgroup>
+                  </select>
+                  <span class="form-error" id="service-error" role="alert"></span>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label" for="preferred-date">Preferred Date</label>
+                    <input
+                      type="date"
+                      id="preferred-date"
+                      name="preferred_date"
+                      class="form-control"
+                      min=""
+                    />
+                    <span class="form-help">We'll do our best to accommodate your preferred date.</span>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="preferred-time">Preferred Time</label>
+                    <select id="preferred-time" name="preferred_time" class="form-control">
+                      <option value="" selected>Any time</option>
+                      <option value="morning">Morning (9am–12pm)</option>
+                      <option value="midday">Midday (12pm–3pm)</option>
+                      <option value="afternoon">Afternoon (3pm–6pm)</option>
+                      <option value="evening">Evening (6pm–8pm, Mon–Fri only)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="therapist-pref">Therapist Preference</label>
+                  <select id="therapist-pref" name="therapist_pref" class="form-control">
+                    <option value="no-preference" selected>No preference — any available therapist</option>
+                    <option value="elena">Elena Vasquez (Founder)</option>
+                    <option value="marcus">Marcus Chen</option>
+                    <option value="priya">Priya Sharma (Skin Care)</option>
+                    <option value="jordan">Jordan Rivera (Wellness)</option>
+                    <option value="sophie">Sophie Laurent (Hot Stone)</option>
+                    <option value="david">David Park (Thai Massage)</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label required" for="message">Message or Special Requests</label>
+                  <textarea
+                    id="message"
+                    name="message"
+                    class="form-control"
+                    rows="4"
+                    placeholder="Tell us about any health conditions, injuries, allergies, or special requests we should know about…"
+                    data-validate="required|min:10"
+                    aria-required="true"
+                  ></textarea>
+                  <span class="form-error" id="message-error" role="alert"></span>
+                  <span class="form-help">This helps us customize your experience. All information is kept strictly confidential.</span>
+                </div>
+
+                <!-- New client checkbox -->
+                <div class="form-group" style="display: flex; align-items: flex-start; gap: var(--sp-3);">
+                  <input
+                    type="checkbox"
+                    id="new-client"
+                    name="new_client"
+                    style="margin-top: 3px; width: 18px; height: 18px; accent-color: var(--clr-primary); flex-shrink: 0;"
+                  />
+                  <label for="new-client" style="font-size: var(--fs-sm); color: var(--clr-text-light); line-height: var(--lh-snug);">
+                    I am a new client at Serenity Spa (new clients receive <strong>20% off</strong> their first treatment)
+                  </label>
+                </div>
+
+                <!-- Privacy notice -->
+                <p style="font-size: var(--fs-xs); color: var(--clr-text-muted); margin-bottom: var(--sp-6); line-height: var(--lh-loose);">
+                  By submitting this form you agree to be contacted regarding your appointment request.
+                  We never share your information with third parties. See our
+                  <a href="#" style="color: var(--clr-primary);">Privacy Policy</a>.
+                </p>
+
+                <button type="submit" class="btn btn-primary btn-lg btn-block">
+                  Send Booking Request
+                </button>
+
+              </form>
+
+              <!-- Success message (hidden by default, shown via JS) -->
+              <div id="form-success" class="form-success" tabindex="-1" aria-live="polite">
+                <div class="form-success-icon" aria-hidden="true">✅</div>
+                <h3>Booking Request Received!</h3>
+                <p>
+                  Thank you! We'll confirm your appointment within 2–4 hours via email or phone.
+                  If it's after business hours, you'll hear from us first thing the next morning.
+                </p>
+                <p>
+                  In the meantime, check out our <a href="faq.html" style="color: var(--clr-success);">FAQ page</a>
+                  for tips on preparing for your treatment.
+                </p>
+              </div>
+
+            </div>
+          </div>
+
+        </div><!-- /.contact-grid -->
+      </div>
+    </section>
+
+
+    <!-- ==================== BOOKING TIPS ==================== -->
+    <section class="section section-alt" aria-labelledby="tips-heading">
+      <div class="container">
+        <div class="section-header centered">
+          <span class="section-label">Preparation</span>
+          <h2 class="section-title" id="tips-heading">Before Your Visit</h2>
+        </div>
+
+        <div class="grid-4" role="list">
+          <div style="text-align: center; padding: var(--sp-6);" role="listitem">
+            <div style="font-size: 2.5rem; margin-bottom: var(--sp-3);" aria-hidden="true">⏰</div>
+            <h3 style="font-size: var(--fs-base); font-weight: var(--fw-semi); margin-bottom: var(--sp-2);">Arrive Early</h3>
+            <p style="font-size: var(--fs-sm); color: var(--clr-text-light); margin-bottom: 0;">
+              Plan to arrive 10–15 minutes before your session to settle in and complete intake paperwork.
+            </p>
+          </div>
+          <div style="text-align: center; padding: var(--sp-6);" role="listitem">
+            <div style="font-size: 2.5rem; margin-bottom: var(--sp-3);" aria-hidden="true">💧</div>
+            <h3 style="font-size: var(--fs-base); font-weight: var(--fw-semi); margin-bottom: var(--sp-2);">Stay Hydrated</h3>
+            <p style="font-size: var(--fs-sm); color: var(--clr-text-light); margin-bottom: 0;">
+              Drink plenty of water before and after your treatment to help flush out toxins.
+            </p>
+          </div>
+          <div style="text-align: center; padding: var(--sp-6);" role="listitem">
+            <div style="font-size: 2.5rem; margin-bottom: var(--sp-3);" aria-hidden="true">📵</div>
+            <h3 style="font-size: var(--fs-base); font-weight: var(--fw-semi); margin-bottom: var(--sp-2);">Digital Detox</h3>
+            <p style="font-size: var(--fs-sm); color: var(--clr-text-light); margin-bottom: 0;">
+              Silence your phone before entering the treatment area. This is your time to fully disconnect.
+            </p>
+          </div>
+          <div style="text-align: center; padding: var(--sp-6);" role="listitem">
+            <div style="font-size: 2.5rem; margin-bottom: var(--sp-3);" aria-hidden="true">🗓️</div>
+            <h3 style="font-size: var(--fs-base); font-weight: var(--fw-semi); margin-bottom: var(--sp-2);">24-Hour Notice</h3>
+            <p style="font-size: var(--fs-sm); color: var(--clr-text-light); margin-bottom: 0;">
+              Need to reschedule? We ask for 24 hours' notice to avoid a late cancellation fee.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="index.html" class="footer-logo">
+            <div class="footer-logo-icon" aria-hidden="true">🌿</div>
+            <span class="footer-logo-name">Serenity Spa & Wellness</span>
+          </a>
+          <p class="footer-tagline">Portland's premier spa since 1999 — restoring body, mind, and spirit.</p>
+          <address style="font-style: normal;">
+            <div class="footer-contact-row"><span aria-hidden="true">📍</span><span>2847 Wellness Drive, Portland, OR 97214</span></div>
+            <div class="footer-contact-row"><span aria-hidden="true">📞</span><a href="tel:5551234567" style="color:inherit;">(555) 123-4567</a></div>
+            <div class="footer-contact-row"><span aria-hidden="true">✉️</span><a href="mailto:hello@serenity-spa.com" style="color:inherit;">hello@serenity-spa.com</a></div>
+          </address>
+        </div>
+        <nav aria-label="Treatments links">
+          <div class="footer-col-title">Treatments</div>
+          <ul class="footer-links">
+            <li><a href="treatments.html" class="footer-link">All Treatments</a></li>
+            <li><a href="services.html"   class="footer-link">Memberships</a></li>
+          </ul>
+        </nav>
+        <nav aria-label="Company links">
+          <div class="footer-col-title">Company</div>
+          <ul class="footer-links">
+            <li><a href="about.html"   class="footer-link">Our Story</a></li>
+            <li><a href="faq.html"     class="footer-link">FAQ</a></li>
+            <li><a href="contact.html" class="footer-link">Contact Us</a></li>
+          </ul>
+        </nav>
+        <div>
+          <div class="footer-col-title">Hours</div>
+          <div class="footer-hours-row"><span class="hours-day">Mon – Fri</span><span>9am – 8pm</span></div>
+          <div class="footer-hours-row"><span class="hours-day">Sat – Sun</span><span>10am – 6pm</span></div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p class="footer-copy">© 2025 Serenity Spa & Wellness. All rights reserved.</p>
+        <div class="footer-social" aria-label="Social media">
+          <a href="#" class="footer-social-link" aria-label="Instagram">📷</a>
+          <a href="#" class="footer-social-link" aria-label="Facebook">📘</a>
+          <a href="#" class="footer-social-link" aria-label="Twitter">🐦</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script>
+    // Set the minimum date for the date picker to today
+    (function () {
+      const dateInput = document.getElementById('preferred-date');
+      if (dateInput) {
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.setAttribute('min', today);
+      }
+    })();
+  </script>
+</body>
+</html>

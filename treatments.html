@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- =====================================================
+       Serenity Spa & Wellness — Treatments Catalog Page
+       12 treatments across 3 categories with filter UI
+       ===================================================== -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Explore Serenity Spa's complete treatment menu — Swedish massage, deep tissue, hot stone, facials, chemical peels, reflexology, aromatherapy, and more." />
+  <title>Treatments | Serenity Spa & Wellness</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>" />
+</head>
+<body>
+
+  <!-- ===================== NAVIGATION ===================== -->
+  <header>
+    <nav class="nav" role="navigation" aria-label="Main navigation">
+      <div class="container nav-inner">
+        <a href="index.html" class="nav-logo" aria-label="Serenity Spa & Wellness — Home">
+          <div class="nav-logo-icon" aria-hidden="true">🌿</div>
+          <div class="nav-logo-text">
+            <span class="nav-logo-name">Serenity</span>
+            <span class="nav-logo-tag">Spa & Wellness</span>
+          </div>
+        </a>
+        <button class="nav-toggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="nav-links">
+          <span></span><span></span><span></span>
+        </button>
+        <ul class="nav-links" id="nav-links" role="menubar">
+          <li role="none"><a href="index.html"      class="nav-link" role="menuitem">Home</a></li>
+          <li role="none"><a href="treatments.html" class="nav-link active" role="menuitem" aria-current="page">Treatments</a></li>
+          <li role="none"><a href="services.html"   class="nav-link" role="menuitem">Memberships</a></li>
+          <li role="none"><a href="about.html"      class="nav-link" role="menuitem">About</a></li>
+          <li role="none"><a href="faq.html"        class="nav-link" role="menuitem">FAQ</a></li>
+          <li role="none"><a href="contact.html"    class="nav-link nav-cta" role="menuitem">Book Now</a></li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main-content">
+
+    <!-- ==================== PAGE HERO ==================== -->
+    <section class="page-hero" aria-label="Treatments page header">
+      <div class="container">
+        <div class="page-hero-label">Complete Menu</div>
+        <h1>Our Treatments</h1>
+        <p>
+          Twelve expertly crafted treatments for your body, skin, and spirit —
+          each personalized to your needs by our certified therapists.
+        </p>
+      </div>
+    </section>
+
+
+    <!-- ==================== FILTER + TREATMENT GRID ==================== -->
+    <section class="section" id="massage" aria-labelledby="catalog-heading">
+      <div class="container">
+
+        <!-- Category filter bar -->
+        <div class="filter-bar" role="group" aria-label="Filter treatments by category">
+          <button class="filter-btn active" data-filter="all"     aria-pressed="true">All Treatments</button>
+          <button class="filter-btn"        data-filter="massage"  aria-pressed="false">💆 Massage</button>
+          <button class="filter-btn"        data-filter="skin"     aria-pressed="false">✨ Skin Care</button>
+          <button class="filter-btn"        data-filter="wellness" aria-pressed="false">🌿 Wellness</button>
+        </div>
+
+        <h2 class="sr-only" id="catalog-heading">Treatment Catalog</h2>
+
+        <!-- All 12 treatment cards -->
+        <div class="treatments-grid" role="list" aria-live="polite" aria-atomic="false">
+
+          <!-- ---- MASSAGE TREATMENTS ---- -->
+          <article class="treatment-card" data-category="massage" role="listitem">
+            <div class="treatment-card-thumb" aria-hidden="true">💆</div>
+            <div class="treatment-card-body">
+              <div class="treatment-card-category">Massage Therapy</div>
+              <h3>Swedish Massage</h3>
+              <p>
+                The gold standard in relaxation massage. Long, flowing effleurage strokes combined with
+                gentle kneading improve circulation, ease muscle tension, and induce deep calm.
+                Perfect for first-time visitors or anyone seeking full-body relief.
+              </p>
+              <div class="treatment-card-meta">
+                <span class="treatment-card-duration">⏱ 60 min · 90 min</span>
+                <span class="treatment-card-price">$85 · $125</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="treatment-card" data-category="massage" role="listitem">
+            <div class="treatment-card-thumb" aria-hidden="true">💪</div>
+            <div class="treatment-card-body">
+              <div class="treatment-card-category">Massage Therapy</div>
+              <h3>Deep Tissue Massage</h3>
+              <p>
+                Targets the deeper layers of muscle and connective tissue using slow, deliberate strokes
+                and firm pressure. Ideal for chronic pain, sports injuries, postural problems,
+                and tension knots that won't quit.
+              </p>
+              <div class="treatment-card-meta">
+                <span class="treatment-card-duration">⏱ 60 min</span>
+                <span class="treatment-card-price">$100</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="treatment-card" data-category="massage" role="listitem">
+            <div class="treatment-card-thumb" aria-hidden="true">🪨</div>
+            <div class="treatment-card-body">
+              <div class="treatment-card-category">Massage Therapy</div>
+              <h3>Hot Stone Therapy</h3>
+              <p>
+                Smooth, heated basalt stones are placed on key points and used as massage tools,
+                allowing heat to penetrate deep into tight muscles. A deeply warming, meditative experience
+                that dissolves tension at the source.
+              </p>
+              <div class="treatment-card-meta">
+                <span class="treatment-card-duration">⏱ 60 min</span>
+                <span class="treatment-card-price">$120</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="treatment-card" data-category="massage" role="listitem">
+            <div class="treatment-card-thumb" aria-hidden="true">🙏</div>
+            <div class="treatment-card-body">
+              <div class="treatment-card-category">Massage Therapy</div>
+              <h3>Thai Massage</h3>
+              <p>
+                Rooted in ancient healing tradition, Thai massage combines acupressure, assisted yoga
+                stretches, and rhythmic compression performed fully clothed on a floor mat.
+                Improves flexibility, energy flow, and mental clarity.
+              </p>
+              <div class="treatment-card-meta">
+                <span class="treatment-card-duration">⏱ 60 min</span>
+                <span class="treatment-card-price">$95</span>
+              </div>
+            </div>
+          </article>
+
+          <!-- ---- SKIN CARE TREATMENTS ---- -->
+          <article class="treatment-card" data-category="skin" id="skin" role="listitem">
+            <div class="treatment-card-thumb" aria-hidden="true">✨</div>
+            <div class="treatment-card-body">
+              <div class="treatment-card-category">Skin Care</div>
+              <h3>Hydrating Facial</h3>
+              <p>
+                A nourishing treatment that infuses the skin with moisture-binding hyaluronic acid and
+                botanical extracts. Includes cleanse, exfoliation, steam, and a hydrating mask.
+                Leaves skin soft, plump, and luminous.
+              </p>
+              <div class="treatment-card-meta">
+                <span class="treatment-card-duration">⏱ 60 min</span>
+                <span class="treatment-card-price">$95</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="treatment-card" data-category="skin" role="listitem">
+            <div class="treatment-card-thumb" aria-hidden="true">💫</div>
+            <div class="treatment-card-body">
+              <div class="treatment-card-category">Skin Care</div>
+              <h3>Anti-Aging Facial</h3>
+              <p>
+                A targeted treatment using peptide serums, vitamin C, and collagen-stimulating technology
+                to visibly reduce fine lines and restore firmness. Includes a full facial massage to
+                promote lymphatic drainage and glow.
+              </p>
+              <div class="treatment-card-meta">
+                <span class="treatment-card-duration">⏱ 60 min</span>
+                <span class="treatment-card-price">$125</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="treatment-card" data-category="skin" role="listitem">
+            <div class="treatment-card-thumb" aria-hidden="true">🧪</div>
+            <div class="treatment-card-body">
+              <div class="treatment-card-category">Skin Care</div>
+              <h3>Chemical Peel</h3>
+              <p>
+                A customized exfoliation treatment using alpha or beta hydroxy acids to resurface the skin,
+                address uneven tone, acne, and hyperpigmentation. Multiple strength levels available
+                for a tailored result.
+              </p>
+              <div class="treatment-card-meta">
+                <span class="treatment-card-duration">⏱ 45 min</span>
+                <span class="treatment-card-price">$110</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="treatment-card" data-category="skin" role="listitem">
+            <div class="treatment-card-thumb" aria-hidden="true">🌸</div>
+            <div class="treatment-card-body">
+              <div class="treatment-card-category">Skin Care</div>
+              <h3>Microdermabrasion</h3>
+              <p>
+                A non-invasive mechanical exfoliation using ultra-fine crystals to polish away dead skin cells,
+                smooth texture, minimize pores, and stimulate cell renewal — revealing fresher, brighter skin
+                with zero downtime.
+              </p>
+              <div class="treatment-card-meta">
+                <span class="treatment-card-duration">⏱ 45 min</span>
+                <span class="treatment-card-price">$115</span>
+              </div>
+            </div>
+          </article>
+
+          <!-- ---- WELLNESS TREATMENTS ---- -->
+          <article class="treatment-card" data-category="wellness" id="wellness" role="listitem">
+            <div class="treatment-card-thumb" aria-hidden="true">🦶</div>
+            <div class="treatment-card-body">
+              <div class="treatment-card-category">Wellness</div>
+              <h3>Reflexology</h3>
+              <p>
+                Based on the principle that specific points on the feet, hands, and ears correspond to
+                organs and systems throughout the body. Gentle, targeted pressure promotes healing,
+                stress relief, and improved organ function.
+              </p>
+              <div class="treatment-card-meta">
+                <span class="treatment-card-duration">⏱ 60 min</span>
+                <span class="treatment-card-price">$80</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="treatment-card" data-category="wellness" role="listitem">
+            <div class="treatment-card-thumb" aria-hidden="true">🧘</div>
+            <div class="treatment-card-body">
+              <div class="treatment-card-category">Wellness</div>
+              <h3>Meditation Session</h3>
+              <p>
+                Guided one-on-one meditation with a certified mindfulness instructor.
+                Includes breathwork, body scan, and visualization techniques tailored to your
+                current stress level and wellness goals. Ideal for beginners and practitioners alike.
+              </p>
+              <div class="treatment-card-meta">
+                <span class="treatment-card-duration">⏱ 45 min</span>
+                <span class="treatment-card-price">$65</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="treatment-card" data-category="wellness" role="listitem">
+            <div class="treatment-card-thumb" aria-hidden="true">🌿</div>
+            <div class="treatment-card-body">
+              <div class="treatment-card-category">Wellness</div>
+              <h3>Aromatherapy</h3>
+              <p>
+                A sensory healing experience using pure essential oils — lavender, eucalyptus, frankincense,
+                and more — delivered through massage, diffusion, or inhalation. Custom-blended to promote
+                calm, energy, clarity, or sleep.
+              </p>
+              <div class="treatment-card-meta">
+                <span class="treatment-card-duration">⏱ 30 min</span>
+                <span class="treatment-card-price">$75</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="treatment-card" data-category="wellness" role="listitem">
+            <div class="treatment-card-thumb" aria-hidden="true">🛁</div>
+            <div class="treatment-card-body">
+              <div class="treatment-card-category">Wellness</div>
+              <h3>Body Wrap</h3>
+              <p>
+                A full-body treatment that begins with an exfoliating scrub, followed by application of
+                nourishing mud, algae, or herbal botanicals. The body is then cocooned to promote
+                detoxification, hydration, and deep relaxation.
+              </p>
+              <div class="treatment-card-meta">
+                <span class="treatment-card-duration">⏱ 60 min</span>
+                <span class="treatment-card-price">$105</span>
+              </div>
+            </div>
+          </article>
+
+        </div><!-- /.treatments-grid -->
+
+      </div>
+    </section>
+
+
+    <!-- ==================== BOOKING NOTE ==================== -->
+    <section class="section section-alt" aria-labelledby="booking-note-heading">
+      <div class="container container-sm text-center">
+        <span class="section-label">Good to Know</span>
+        <h2 class="section-title" id="booking-note-heading">Before You Book</h2>
+        <div class="grid-3" style="margin-top: var(--sp-8); text-align: left;">
+          <div style="background: var(--clr-surface); border-radius: var(--radius-lg); padding: var(--sp-6); border: 1px solid var(--clr-border);">
+            <div style="font-size: 2rem; margin-bottom: var(--sp-3);" aria-hidden="true">⏰</div>
+            <h3 style="font-size: var(--fs-lg); margin-bottom: var(--sp-2);">Arrive Early</h3>
+            <p style="font-size: var(--fs-sm); color: var(--clr-text-light); margin-bottom: 0;">
+              Please arrive 10–15 minutes before your appointment to complete any intake forms and begin your relaxation.
+            </p>
+          </div>
+          <div style="background: var(--clr-surface); border-radius: var(--radius-lg); padding: var(--sp-6); border: 1px solid var(--clr-border);">
+            <div style="font-size: 2rem; margin-bottom: var(--sp-3);" aria-hidden="true">📋</div>
+            <h3 style="font-size: var(--fs-lg); margin-bottom: var(--sp-2);">Health Intake</h3>
+            <p style="font-size: var(--fs-sm); color: var(--clr-text-light); margin-bottom: 0;">
+              First-time clients complete a brief health history form so we can customize your treatment safely.
+            </p>
+          </div>
+          <div style="background: var(--clr-surface); border-radius: var(--radius-lg); padding: var(--sp-6); border: 1px solid var(--clr-border);">
+            <div style="font-size: 2rem; margin-bottom: var(--sp-3);" aria-hidden="true">🔁</div>
+            <h3 style="font-size: var(--fs-lg); margin-bottom: var(--sp-2);">Cancellation Policy</h3>
+            <p style="font-size: var(--fs-sm); color: var(--clr-text-light); margin-bottom: 0;">
+              We kindly ask for 24-hour notice for cancellations. Late cancellations may incur a 50% fee.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ==================== CTA ==================== -->
+    <section class="cta-banner" aria-labelledby="cta-heading">
+      <div class="container">
+        <h2 id="cta-heading">Ready to Book Your Treatment?</h2>
+        <p>New clients receive 20% off their first appointment. Call or book online today.</p>
+        <div class="cta-banner-actions">
+          <a href="contact.html" class="btn btn-white btn-lg">Book an Appointment</a>
+          <a href="tel:5551234567" class="btn btn-outline-white btn-lg">📞 (555) 123-4567</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="index.html" class="footer-logo">
+            <div class="footer-logo-icon" aria-hidden="true">🌿</div>
+            <span class="footer-logo-name">Serenity Spa & Wellness</span>
+          </a>
+          <p class="footer-tagline">Portland's premier spa since 1999 — restoring body, mind, and spirit.</p>
+          <address style="font-style: normal;">
+            <div class="footer-contact-row"><span aria-hidden="true">📍</span><span>2847 Wellness Drive, Portland, OR 97214</span></div>
+            <div class="footer-contact-row"><span aria-hidden="true">📞</span><a href="tel:5551234567" style="color:inherit;">(555) 123-4567</a></div>
+            <div class="footer-contact-row"><span aria-hidden="true">✉️</span><a href="mailto:hello@serenity-spa.com" style="color:inherit;">hello@serenity-spa.com</a></div>
+          </address>
+        </div>
+        <nav aria-label="Treatments links">
+          <div class="footer-col-title">Treatments</div>
+          <ul class="footer-links">
+            <li><a href="treatments.html#massage"  class="footer-link">Massage Therapy</a></li>
+            <li><a href="treatments.html#skin"     class="footer-link">Skin Care</a></li>
+            <li><a href="treatments.html#wellness" class="footer-link">Wellness Services</a></li>
+            <li><a href="services.html"            class="footer-link">Memberships</a></li>
+          </ul>
+        </nav>
+        <nav aria-label="Company links">
+          <div class="footer-col-title">Company</div>
+          <ul class="footer-links">
+            <li><a href="about.html"   class="footer-link">Our Story</a></li>
+            <li><a href="faq.html"     class="footer-link">FAQ</a></li>
+            <li><a href="contact.html" class="footer-link">Contact Us</a></li>
+          </ul>
+        </nav>
+        <div>
+          <div class="footer-col-title">Hours</div>
+          <div class="footer-hours-row"><span class="hours-day">Mon – Fri</span><span>9am – 8pm</span></div>
+          <div class="footer-hours-row"><span class="hours-day">Sat – Sun</span><span>10am – 6pm</span></div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p class="footer-copy">© 2025 Serenity Spa & Wellness. All rights reserved.</p>
+        <div class="footer-social" aria-label="Social media">
+          <a href="#" class="footer-social-link" aria-label="Instagram">📷</a>
+          <a href="#" class="footer-social-link" aria-label="Facebook">📘</a>
+          <a href="#" class="footer-social-link" aria-label="Twitter">🐦</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

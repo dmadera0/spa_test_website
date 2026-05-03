@@ -1,0 +1,19 @@
+{
+  "name": "serenity-spa-wellness",
+  "version": "1.0.0",
+  "description": "Serenity Spa & Wellness — static website for AWS S3 + CloudFront deployment",
+  "private": true,
+  "scripts": {
+    "start": "npx http-server . -p 8080 -o --cors",
+    "deploy": "bash aws-deploy.sh",
+    "invalidate": "aws cloudfront create-invalidation --distribution-id $CF_DISTRIBUTION_ID --paths '/*'"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": ["spa", "wellness", "static-site", "aws", "s3", "cloudfront"],
+  "license": "UNLICENSED"
+}

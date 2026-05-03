@@ -1,0 +1,37 @@
+# OS / Editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
+*.code-workspace
+
+# Node (for AWS CLI tooling)
+node_modules/
+npm-debug.log*
+yarn-error.log
+.yarn-integrity
+
+# AWS credentials — NEVER commit these
+.env
+.env.*
+aws-credentials.json
+credentials
+*.pem
+*.key
+
+# Build artifacts
+dist/
+build/
+*.min.css
+*.min.js
+
+# Logs
+*.log
+logs/
+
+# Temp files
+*.tmp
+*.bak
+*.orig
