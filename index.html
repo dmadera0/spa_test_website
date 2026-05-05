@@ -546,5 +546,18 @@
   </footer>
 
   <script src="js/main.js"></script>
+  <!-- Serenity Spa AI Chat Widget -->
+  <script src="https://d3otg5fszt3roj.cloudfront.net/widget/serenity-widget.js"></script>
+  <script>
+    DemoChat.init({
+      tenantId: 'serenity-spa-wellness-e5a4',
+      apiUrl: 'https://krli1mrzr9.execute-api.us-east-1.amazonaws.com',
+      primaryColor: '#6b5b95',
+      accentColor: '#c9b99a',
+      agentName: 'Serenity Assistant',
+      greetingMessage: 'Welcome to Serenity Spa & Wellness. How can we help you today?',
+      position: 'bottom-right'
+    });
+  </script>
 </body>
 </html>
