@@ -10,7 +10,7 @@ A **production-ready, zero-dependency static website** for a fictional Portland 
 
 Perfect for portfolio demonstration of semantic HTML, responsive design, accessibility best practices, and AWS cloud deployment.
 
-**[🚀 Live Demo](https://d1q7a5j8k2p9r3.cloudfront.net)** • **[📖 Full Deployment Guide](aws-deploy.md)** • **[💬 Knowledge Base](knowledge-base.md)**
+**[🚀 Live Demo](https://d3otg5fszt3roj.cloudfront.net/)** • **[📖 Full Deployment Guide](aws-deploy.md)** • **[💬 Knowledge Base](knowledge-base.md)**
 
 ---
 
