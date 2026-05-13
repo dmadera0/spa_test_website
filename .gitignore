@@ -21,6 +21,10 @@ credentials
 *.pem
 *.key
 
+# Deploy scripts contain secrets — keep off GitHub
+setup.sh
+aws-deploy.sh
+
 # Build artifacts
 dist/
 build/
