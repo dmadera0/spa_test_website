@@ -5,12 +5,11 @@
 ![Pages](https://img.shields.io/badge/pages-6-informational)
 ![Size](https://img.shields.io/badge/gzip-25--35%20KB-success)
 ![Accessibility](https://img.shields.io/badge/WCAG-2.1%20AA-brightgreen)
+![Admin](https://img.shields.io/badge/admin-OAuth%202.0-purple)
 
-A **production-ready, zero-dependency static website** for a fictional Portland spa. Built with pure HTML5, CSS3, and vanilla JavaScript — no frameworks, no build tools, no external dependencies.
+A **production-ready, zero-dependency static website** for a fictional Portland spa — with a **fully integrated OAuth-protected admin panel** for live content management. Built with pure HTML5, CSS3, and vanilla JavaScript on the frontend; AWS Cognito, Lambda, and API Gateway on the backend.
 
-Perfect for portfolio demonstration of semantic HTML, responsive design, accessibility best practices, and AWS cloud deployment.
-
-**[🚀 Live Demo](https://d3otg5fszt3roj.cloudfront.net/)** • **[📖 Full Deployment Guide](aws-deploy.md)** • **[💬 Knowledge Base](knowledge-base.md)**
+**[🚀 Live Demo](https://d3otg5fszt3roj.cloudfront.net/)** • **[🔐 Admin Panel](https://d3otg5fszt3roj.cloudfront.net/admin/)** • **[📖 Admin Setup Guide](README-admin.md)** • **[💬 Knowledge Base](knowledge-base.md)**
 
 ---
 
@@ -19,7 +18,7 @@ Perfect for portfolio demonstration of semantic HTML, responsive design, accessi
 - [Overview](#overview)
 - [Key Features](#key-features)
 - [Tech Stack](#tech-stack)
-- [Live Site](#live-site)
+- [Admin Panel](#admin-panel)
 - [Local Setup](#local-setup)
 - [Customization](#customization)
 - [Deployment](#deployment)
@@ -31,16 +30,18 @@ Perfect for portfolio demonstration of semantic HTML, responsive design, accessi
 
 ## Overview
 
-This project demonstrates a **complete, professional spa website** ready for AWS S3 + CloudFront hosting. It's designed as both a **working business website** and a **test bed for AI/RAG customer service agents** (includes a 50-question knowledge base in `knowledge-base.md`).
+This project demonstrates a **complete, professional spa website** ready for AWS S3 + CloudFront hosting — plus a **password-protected admin panel** that lets non-technical staff edit live content without touching code.
+
+It's also designed as a **test bed for AI/RAG customer service agents** with a structured 50-question knowledge base in `knowledge-base.md`.
 
 **Project Goals:**
-✅ Zero external dependencies (no npm packages, no CDN)  
+✅ Zero external dependencies on the frontend  
 ✅ Mobile-first responsive design  
 ✅ WCAG 2.1 AA accessibility compliance  
 ✅ AWS S3 + CloudFront optimized  
-✅ Semantic HTML5 & modern CSS  
-✅ Form validation without backend  
-✅ Production-ready code  
+✅ Google OAuth staff authentication (Cognito)  
+✅ Live content editing via Lambda API  
+✅ Automated CloudFront invalidation on save  
 
 ---
 
@@ -54,39 +55,86 @@ This project demonstrates a **complete, professional spa website** ready for AWS
 | **Forms** | Booking form with real-time validation, no backend required |
 | **Interactivity** | FAQ accordions (one-open), treatment filter, smooth scrolling |
 | **Accessibility** | WCAG 2.1 AA: ARIA labels, keyboard nav, focus styles, semantic HTML |
-| **Performance** | ~35 KB gzipped, no external assets, inline SVG favicon |
-| **Hosting** | AWS S3 + CloudFront optimized (cache headers, invalidation scripts) |
-| **Documentation** | AWS deployment guide, knowledge base (50 Q&As for RAG), customization guide |
+| **Performance** | ~35 KB gzipped, no external assets |
+| **Admin Panel** | Google OAuth login, 8 editor pages, live S3 + CloudFront updates |
+| **Hosting** | AWS S3 + CloudFront (cache headers, automated invalidation) |
 
 ---
 
 ## Tech Stack
 
 ```
-Frontend:
+Frontend (Main Website):
 ├── HTML5 (semantic structure, accessibility)
 ├── CSS3 (Grid, Flexbox, custom properties, mobile-first)
-└── Vanilla JavaScript (no frameworks, ~400 lines)
+└── Vanilla JavaScript (~400 lines, no frameworks)
+
+Frontend (Admin Panel):
+├── HTML5 + CSS3 + Vanilla JS (matching no-framework approach)
+├── Google OAuth 2.0 via Cognito Hosted UI
+└── JWT token auth with protected routes
+
+Backend (Admin API):
+├── AWS Lambda (Node.js 20) — content CRUD handler
+├── AWS API Gateway (HTTP API) — JWT-authorized routes
+├── AWS Cognito — User Pool + Google identity provider
+└── IAM Role — scoped S3 + CloudFront permissions
 
 Infrastructure:
 ├── AWS S3 (static file hosting)
-├── CloudFront (CDN, HTTPS, global distribution)
-└── Route 53 (optional: DNS management)
-
-Code Quality:
-├── Zero npm dependencies
-├── Accessibility: WCAG 2.1 AA
-├── Browser support: Chrome 90+, Firefox 88+, Safari 14+, Edge 90+
-└── Lighthouse scores: 95+ across all metrics
+├── CloudFront (CDN, HTTPS, global distribution, auto-invalidation)
+└── Route 53 (optional DNS management)
 ```
 
 ---
 
-## Live Site
+## Admin Panel
 
-**CloudFront Distribution ID:** `E394G7D2J8ETX3`  
-**S3 Bucket:** `serenity-spa-wellness-site`  
-**Live URL:** https://d1q7a5j8k2p9r3.cloudfront.net
+The admin panel at `/admin/` allows Serenity Spa staff to edit live website content without code. All changes write directly to S3 and automatically clear the CloudFront cache.
+
+### Authentication
+
+Sign-in is handled by **Google OAuth 2.0** via AWS Cognito:
+
+```
+Staff clicks "Sign in with Google"
+    → Redirects to Cognito Hosted UI
+    → Cognito authenticates via Google
+    → Returns authorization code
+    → Exchanges code for JWT (id_token)
+    → JWT stored in localStorage
+    → All API calls include Bearer token
+    → API Gateway validates JWT against Cognito
+    → Lambda executes if token is valid
+```
+
+Only email addresses added to the Cognito User Pool can access the admin panel. Unauthorized Google accounts are rejected at the Cognito level.
+
+### Editor Pages
+
+| Page | What You Can Edit |
+|------|------------------|
+| Dashboard | Overview and navigation hub |
+| Treatments | Names, descriptions, categories, duration, prices |
+| Pricing | Membership tiers, monthly prices, benefit lists |
+| Hours & Contact | Business hours, phone, email, address |
+| Team | Staff profiles, roles, bios |
+| FAQ | Questions and answers by category |
+| Knowledge Base | RAG Q&A pairs with tags and metadata |
+
+### API Endpoints
+
+All endpoints require `Authorization: Bearer <id_token>`.
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/admin/api/content?file={name}` | Read file from S3 |
+| `PUT` | `/admin/api/content` | Write file + invalidate CloudFront |
+| `GET` | `/admin/api/me` | Return authenticated user info |
+
+### Setup
+
+See **[README-admin.md](README-admin.md)** for the complete setup guide, including Google Cloud Console OAuth credential instructions and `setup.sh` deployment automation.
 
 ---
 
@@ -95,28 +143,20 @@ Code Quality:
 ### ⚡ Quickest: Direct in Browser
 ```bash
 open index.html
-# or double-click in Finder/Explorer
 ```
 
 ### ✨ Recommended: Local HTTP Server
 
-**Using Node.js:**
 ```bash
-npm install
-npm start
+# Node.js
+npm install && npm start
 # → http://localhost:8080
-```
 
-**Using Python (no install):**
-```bash
+# Python
 python3 -m http.server 8080
-# → http://localhost:8080
-```
 
-**Using PHP:**
-```bash
+# PHP
 php -S localhost:8080
-# → http://localhost:8080
 ```
 
 ---
@@ -125,7 +165,7 @@ php -S localhost:8080
 
 ### 1️⃣ Update Business Info
 
-All HTML files contain these values — use find-and-replace:
+Search-and-replace across all HTML files:
 
 | Find | Replace with |
 |------|------|
@@ -137,56 +177,45 @@ All HTML files contain these values — use find-and-replace:
 
 ### 2️⃣ Change Brand Colors
 
-Edit `css/styles.css`, line 27 (`:root` section):
+Edit `css/styles.css` — find the `:root` block:
 
 ```css
 :root {
   --clr-primary:       #6b5b95;   /* Main brand color */
-  --clr-primary-dark:  #4a3f6b;   /* Darker for hover states */
-  --clr-primary-light: #9b8bc4;   /* Lighter for accents */
-  --clr-accent:        #c9b99a;   /* Complementary warm tone */
+  --clr-primary-dark:  #4a3f6b;   /* Hover states */
+  --clr-primary-light: #9b8bc4;   /* Accents */
+  --clr-accent:        #c9b99a;   /* Warm complement */
 }
 ```
 
-**Pro tip:** Use [coolors.co](https://coolors.co) to generate harmonious palettes.
-
 ### 3️⃣ Update Prices
 
-**`treatments.html`** — Each treatment card:
+**`treatments.html`** — each treatment card:
 ```html
 <span class="treatment-card-price">$85 · $125</span>
 ```
 
-**`faq.html`** — Search for "What are your treatment prices?" and update the list.
-
 ### 4️⃣ Update Team Members
 
-**`about.html`** — Team section. Edit each card:
+**`about.html`** — team section:
 ```html
 <div class="team-name">Your Name</div>
 <div class="team-role">Your Role</div>
 <p class="team-bio">Your bio text...</p>
 ```
 
-Change emoji in `.team-avatar` div (currently 👩 👨 etc.)
-
 ### 5️⃣ Update Hours
 
-**`contact.html`** — Hours table section.  
-Also update footer hours in all 6 pages.
+**`contact.html`** — hours table section. Also update footer hours in all 6 pages.
 
 ### 6️⃣ Add Real Images
 
-The site uses emoji placeholders. To add photos:
-
 ```bash
 mkdir images/
-# Add your .jpg or .webp files
+# Add .jpg or .webp files, then replace .visual-block divs:
 ```
-
-Replace `.visual-block` divs with:
 ```html
-<img src="images/treatment-room.webp" 
+<img src="images/treatment-room.webp"
      alt="Treatment room"
      loading="lazy"
      width="600" height="450" />
@@ -207,204 +236,16 @@ Add before `</head>` in each HTML file:
 
 ### 8️⃣ Connect Real Form Backend
 
-The booking form currently simulates submission. To send real emails:
-
-**Formspree (easiest):**
 ```html
+<!-- Formspree (easiest) -->
 <form id="contact-form" action="https://formspree.io/f/YOUR_ID" method="POST">
 ```
-
-**AWS Lambda + SES:**
-Update the fetch URL in `js/main.js` (around line 200).
-
-**Netlify Forms:**
-Add `netlify` attribute to the form element.
-
----
-
-## Features
-
-
-
-| Feature | Details |
-|---------|---------|
-| Pages | 6 fully responsive pages |
-| Design | Purple-primary spa aesthetic, mobile-first |
-| Navigation | Sticky header, hamburger mobile menu |
-| Forms | Contact/booking form with JS validation |
-| Accordions | FAQ with one-open-at-a-time behavior |
-| Filter | Treatment catalog filterable by category |
-| Accessibility | WCAG 2.1 AA compliant (ARIA labels, keyboard nav) |
-| Hosting | Optimized for AWS S3 + CloudFront static hosting |
-
----
-
-## File Structure
-
-```
-spa_test_website/
-├── index.html          ← Landing page
-├── treatments.html     ← Treatment catalog + filter
-├── services.html       ← Memberships + pricing
-├── about.html          ← Story, team, values, stats
-├── contact.html        ← Booking form + hours
-├── faq.html            ← 25+ FAQ accordions
-├── css/
-│   └── styles.css      ← Single stylesheet (~1,000 lines)
-├── js/
-│   └── main.js         ← Single script (~280 lines)
-├── knowledge-base.md   ← 50 Q&A for AI/RAG integration
-├── aws-deploy.md       ← Step-by-step AWS deployment guide
-├── aws-deploy.sh       ← Automated deployment shell script
-├── package.json        ← npm scripts for local dev & deploy
-├── .gitignore
-└── README.md
-```
-
----
-
-## Quick Start — Local Development
-
-### Option 1: Direct browser (simplest)
-```bash
-open index.html   # macOS
-# or double-click index.html in Finder/Explorer
-```
-> Note: Some browsers block local file links. Use Option 2 for full fidelity.
-
-### Option 2: Local HTTP server (recommended)
-```bash
-# Using Node.js http-server
-npm install
-npm start
-# Opens http://localhost:8080
-```
-
-```bash
-# Using Python (no install needed)
-python3 -m http.server 8080
-# Visit http://localhost:8080
-```
-
-```bash
-# Using PHP (if available)
-php -S localhost:8080
-```
-
----
-
-## Customization Guide
-
-### 1. Change Business Information
-
-Search-and-replace across all HTML files:
-
-| Find | Replace with |
-|------|------|
-| `Serenity Spa & Wellness` | Your business name |
-| `2847 Wellness Drive, Portland, OR 97214` | Your address |
-| `(555) 123-4567` | Your phone number |
-| `hello@serenity-spa.com` | Your email address |
-| `1999` | Your founding year |
-
-### 2. Change Colors
-
-Edit **`css/styles.css`** — find the `:root` block at the top:
-
-```css
-:root {
-  --clr-primary:       #6b5b95;   /* ← Change this to your brand color */
-  --clr-primary-dark:  #4a3f6b;   /* ← Darker variant (buttons hover) */
-  --clr-primary-light: #9b8bc4;   /* ← Lighter variant */
-  --clr-accent:        #c9b99a;   /* ← Warm accent color */
-}
-```
-
-Use a tool like [coolors.co](https://coolors.co) to generate matching palettes.
-
-### 3. Update Treatment Prices
-
-In **`treatments.html`**, find each `<article class="treatment-card">` and update the price in:
-```html
-<span class="treatment-card-price">$85 · $125</span>
-```
-
-Also update the price list in **`faq.html`** (under "What are your treatment prices?").
-
-### 4. Update Team Members
-
-In **`about.html`**, find the team section and edit each `<article class="team-card">`:
-```html
-<div class="team-name">First Last</div>
-<div class="team-role">Role / Specialty</div>
-<p class="team-bio">Bio text here...</p>
-```
-
-Change the emoji in `.team-avatar` to represent gender/appearance as needed.
-
-### 5. Update Business Hours
-
-In **`contact.html`**, find the hours table section. Also update the footer hours in all pages.
-
-### 6. Add Real Images
-
-The site currently uses emoji as visual placeholders. To add real images:
-
-1. Create an `images/` directory
-2. Add your image files (`.jpg`, `.webp` recommended)
-3. Replace `.visual-block` elements with `<img>` tags:
-
-```html
-<!-- Replace this: -->
-<div class="visual-block">
-  <div class="visual-emoji">🛁</div>
-</div>
-
-<!-- With this: -->
-<img src="images/treatment-room.webp" 
-     alt="Serenity Spa treatment room"
-     loading="lazy"
-     width="600" height="450" />
-```
-
-Use `loading="lazy"` for all images except the hero to optimize load time.
-
-### 7. Add Google Analytics
-
-Add before `</head>` in each HTML file:
-```html
-<!-- Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-XXXXXXXXXX');
-</script>
-```
-
-### 8. Connect a Real Form Backend
-
-The contact form currently shows a simulated success message. To send real emails:
-
-**Option A — Formspree (easiest, free tier available)**
-```html
-<form id="contact-form" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
-```
-
-**Option B — AWS SES + Lambda**
-Point the JS fetch call in `main.js` to your Lambda function URL.
-
-**Option C — Netlify Forms**
-Add `netlify` attribute to the form if deploying on Netlify.
 
 ---
 
 ## Deployment
 
-### 🚀 Quick Deploy (Single File Update)
-
-Just updated `index.html`? Deploy it in seconds:
+### 🚀 Quick Deploy (Single File)
 
 ```bash
 aws s3 cp index.html s3://serenity-spa-wellness-site/index.html \
@@ -417,8 +258,6 @@ aws cloudfront create-invalidation \
 ```
 
 ### 🔄 Full Site Sync
-
-Deploy all changes:
 
 ```bash
 aws s3 sync . s3://serenity-spa-wellness-site/ \
@@ -433,20 +272,18 @@ aws cloudfront create-invalidation \
   --paths "/*"
 ```
 
-### 🤖 Automated Deploy Script
+### 🔐 Deploy Admin Panel
 
 ```bash
-chmod +x aws-deploy.sh
-./aws-deploy.sh
+# First-time setup (Cognito + Lambda + API Gateway):
+chmod +x setup.sh && ./setup.sh
+
+# Update admin frontend only:
+aws s3 sync admin/ s3://serenity-spa-wellness-site/admin/ --delete
+aws cloudfront create-invalidation \
+  --distribution-id E394G7D2J8ETX3 \
+  --paths "/admin/*"
 ```
-
-The script automatically:
-- ✅ Syncs files to S3
-- ✅ Sets cache headers (HTML: 1h, CSS/JS: 24h)
-- ✅ Invalidates CloudFront cache
-- ✅ Reports live URL
-
-**Full guide:** See [aws-deploy.md](aws-deploy.md) for step-by-step AWS setup, DNS configuration, cost breakdown, and troubleshooting.
 
 ---
 
@@ -455,149 +292,152 @@ The script automatically:
 | Metric | Value |
 |--------|-------|
 | **Page Size (gzipped)** | 25–35 KB |
-| **Page Size (uncompressed)** | 80–120 KB |
 | **Requests (initial load)** | 3–5 (HTML, CSS, JS only) |
-| **CSS Size** | 44 KB |
-| **JavaScript Size** | 16 KB |
 | **Time to Interactive** | ~1.2s on 3G |
 | **Lighthouse Score** | 95–100 across all metrics |
-
-**Why it's fast:**
-- ✅ Single CSS file (no render-blocking imports)
-- ✅ Single JS file (deferred to body end)
-- ✅ System font stack (no external fonts)
-- ✅ Emoji placeholders (no image HTTP requests)
-- ✅ CloudFront global CDN caching
-- ✅ Gzip compression enabled
+| **Admin API latency** | ~200ms (Lambda cold start ~800ms) |
 
 ---
 
 ## Browser Support
 
-| Browser | Support | Notes |
-|---------|---------|-------|
-| Chrome 90+ | ✅ Full | |
-| Firefox 88+ | ✅ Full | |
-| Safari 14+ | ✅ Full | |
-| Edge 90+ | ✅ Full | |
-| iOS Safari 14+ | ✅ Full | Smooth on iPhone/iPad |
-| Android Chrome | ✅ Full | Hamburger menu works great |
-| IE 11 | ❌ Not supported | Modern browsers only |
+| Browser | Support |
+|---------|---------|
+| Chrome 90+ | ✅ Full |
+| Firefox 88+ | ✅ Full |
+| Safari 14+ | ✅ Full |
+| Edge 90+ | ✅ Full |
+| iOS Safari 14+ | ✅ Full |
+| IE 11 | ❌ Not supported |
 
 ---
 
 ## Accessibility (WCAG 2.1 AA)
 
-**Keyboard Navigation:**
-- ✅ All interactive elements accessible via Tab/Enter/Space
-- ✅ FAQ accordions: Arrow keys (↑↓), Home, End keys
-- ✅ Treatment filter: Keyboard + screen reader announcements
-- ✅ Escape closes mobile menu
-
-**ARIA & Semantics:**
-- ✅ ARIA labels on navigation, forms, accordions, filters
-- ✅ Live regions for dynamic content (filter results)
+- ✅ All interactive elements keyboard accessible
+- ✅ FAQ accordions: Arrow keys, Home, End
+- ✅ ARIA labels on nav, forms, accordions, filters
+- ✅ Live regions for dynamic content
 - ✅ `aria-expanded` on accordion triggers
-- ✅ `aria-current="page"` on active nav links
-- ✅ Form error messages linked via `aria-describedby`
-
-**Visual Design:**
-- ✅ Sufficient color contrast (WCAG AA ratio ≥ 4.5:1)
-- ✅ Focus styles clearly visible on all interactive elements
-- ✅ Semantic HTML5 landmarks: `<header>`, `<nav>`, `<main>`, `<footer>`
-- ✅ Proper heading hierarchy (no skipped levels)
-- ✅ `alt` text and `aria-hidden` used correctly
+- ✅ Form errors linked via `aria-describedby`
+- ✅ Sufficient color contrast (≥ 4.5:1)
+- ✅ Semantic HTML5 landmarks throughout
 
 ---
 
 ## What I Built
 
 ### Code Stats
-- **HTML:** 5,573 lines across 6 pages (550–695 lines each)
-- **CSS:** 2,053 lines (single file, fully commented)
-- **JavaScript:** 410 lines (vanilla, no dependencies)
-- **Total:** ~8,000 lines of production code
-- **Zero dependencies** (no npm packages, no CDN)
 
-### Key Components Built from Scratch
+| Layer | Lines |
+|-------|-------|
+| HTML (6 pages) | ~5,573 |
+| CSS | 2,053 |
+| JavaScript (main site) | 410 |
+| JavaScript (admin panel) | ~1,200 |
+| Lambda (Node.js) | ~150 |
+| Shell scripts | ~280 |
+| **Total** | **~9,700** |
 
-1. **Sticky Navigation** — Responds to scroll, active page detection, mobile hamburger with Escape/click-outside close
-2. **FAQ Accordions** — One-open-at-a-time behavior, keyboard navigation (arrows, Home, End), ARIA states
-3. **Treatment Filter** — Real-time category filtering with aria-pressed states and screen reader announcements
-4. **Contact Form** — Real-time validation (required, email, phone, min-length), visual feedback, no backend
-5. **Responsive Grid** — CSS Grid & Flexbox, mobile-first breakpoints (480px, 768px, 1024px+)
-6. **Accessibility** — Full WCAG 2.1 AA compliance with semantic HTML and ARIA
+Zero npm dependencies on the frontend. Zero frameworks.
+
+### Main Website Components
+
+1. **Sticky Navigation** — Scroll shadow, active page detection, hamburger with Escape/click-outside
+2. **FAQ Accordions** — One-open, keyboard nav (arrows, Home, End), ARIA states
+3. **Treatment Filter** — Real-time category filtering, aria-pressed, screen reader announcements
+4. **Contact Form** — Real-time validation (required, email, phone, min-length), no backend
+5. **Responsive Grid** — CSS Grid & Flexbox, breakpoints at 480px, 768px, 1024px+
+6. **Knowledge Base** — 50 structured Q&A pairs ready for RAG/vector DB
+
+### Admin Panel Components
+
+1. **Google OAuth Flow** — Cognito Hosted UI → authorization code → JWT exchange → localStorage
+2. **Protected Routes** — JWT validation on every page load, redirect to login on expiry
+3. **Lambda Content API** — File whitelist, S3 read/write, CloudFront invalidation on every save
+4. **8 Editor Pages** — Treatments, pricing, hours, team, FAQ, knowledge base
+5. **Live Saves** — Every change writes to S3 and invalidates the CloudFront edge cache instantly
+6. **Toast Notifications** — Save success/error feedback throughout
 
 ### Pages
 
 | Page | Purpose | Key Features |
 |------|---------|--------------|
-| **index.html** | Landing page | Hero section, featured treatments, testimonials, stats bar, membership preview, CTA |
-| **treatments.html** | Catalog | 12 treatments, category filter (Massage/Skin/Wellness), detailed cards |
-| **services.html** | Memberships | 4 pricing tiers, comparison table, FAQ accordion, gift card info |
-| **about.html** | Company info | 25-year history, 8-person team with bios, 6 core values, certifications |
-| **contact.html** | Booking | Contact form with validation, hours table, location, map placeholder |
-| **faq.html** | Q&A | 25 collapsible questions across 5 categories |
+| `index.html` | Landing | Hero, treatments preview, testimonials, CTA |
+| `treatments.html` | Catalog | 12 treatments, category filter |
+| `services.html` | Memberships | 4 pricing tiers, comparison table |
+| `about.html` | Company | History, 8-person team, values |
+| `contact.html` | Booking | Validated form, hours, map placeholder |
+| `faq.html` | Q&A | 25 collapsible questions, 5 categories |
 
 ---
 
 ## Portfolio Highlights
 
-### Why This Project Stands Out
+✨ **Zero Frontend Dependencies**  
+No npm packages, no frameworks, no build step. Pure web fundamentals throughout.
 
-✨ **Zero Dependencies**  
-No npm packages, no frameworks, no build step. Pure HTML5, CSS3, vanilla JS. Shows mastery of web fundamentals.
+🔐 **Full OAuth 2.0 Implementation**  
+Google sign-in via AWS Cognito — authorization code flow, JWT validation, protected routes, token expiry handling. Real-world authentication pattern.
 
-🎨 **Professional Design**  
-Spa aesthetic with purple brand colors, smooth animations, thoughtful typography, and a cohesive visual system using CSS custom properties.
+🛠️ **End-to-End Content Management**  
+Admin writes directly to S3 via a JWT-protected Lambda API. CloudFront cache is programmatically invalidated on every save. Staff edits are live in seconds.
 
 ♿ **Accessibility First**  
-WCAG 2.1 AA compliant with full keyboard navigation, ARIA labels, semantic HTML, and screen reader support. Real accessibility, not an afterthought.
+WCAG 2.1 AA compliant — keyboard navigation, ARIA labels, semantic HTML, screen reader support.
 
 📱 **Mobile-First Responsive**  
-Tested across devices. Hamburger menu collapses gracefully, touch-friendly buttons, readable on all screen sizes.
+Hamburger menu, touch-friendly UI, tested across screen sizes.
 
-☁️ **Production-Ready Deployment**  
-Complete AWS S3 + CloudFront setup with automated deploy scripts, cache headers, invalidation, DNS guidance, and cost breakdown.
+☁️ **Production AWS Infrastructure**  
+S3 + CloudFront + API Gateway + Lambda + Cognito + IAM — complete IaC via `setup.sh`.
 
-📚 **Knowledge Base for AI**  
-50 structured Q&A pairs (`.md` file with id, category, question, answer, tags) ready for RAG/vector DB integration — demonstrates thinking about data structure for ML.
-
-📖 **Comprehensive Documentation**  
-README with customization guide, AWS deployment guide, inline code comments, and examples. Easy to hand off or extend.
-
-### Metrics
-
-- **Lighthouse:** 95–100 across Performance, Accessibility, Best Practices, SEO
-- **Page Load:** ~1.2s on 3G (all assets)
-- **Bundle Size:** 35 KB gzipped (entire site)
-- **Browser Support:** Modern browsers (Chrome, Firefox, Safari, Edge)
-- **Time to Build:** Professional-quality site from scratch
-- **No Tech Debt:** Clean, commented, maintainable code
+📚 **AI-Ready Knowledge Base**  
+50 structured Q&A pairs with metadata (id, category, tags) ready for RAG/vector DB integration.
 
 ---
 
 ## File Structure
 
 ```
-serenity-spa-wellness-site/
-├── 📄 index.html              (550 lines) Landing page
-├── 📄 treatments.html         (387 lines) Treatment catalog + filter
-├── 📄 services.html           (546 lines) Memberships & pricing
-├── 📄 about.html              (439 lines) Team, story, values
-├── 📄 contact.html            (493 lines) Booking form + hours
-├── 📄 faq.html                (695 lines) 25+ FAQ accordions
-├── 📁 css/
-│   └── styles.css             (2,053 lines) All styling
-├── 📁 js/
-│   └── main.js                (410 lines) All interactivity
-├── 📘 README.md               (This file)
-├── 📘 aws-deploy.md           (Complete AWS guide)
-├── 🔧 aws-deploy.sh           (Automated deploy script)
-├── 📘 knowledge-base.md       (50 Q&As for RAG systems)
-├── package.json               (npm scripts)
-└── .gitignore                 (Standard patterns)
+spa_test_website/
+├── index.html               ← Landing page
+├── treatments.html          ← Treatment catalog + filter
+├── services.html            ← Memberships + pricing
+├── about.html               ← Story, team, values
+├── contact.html             ← Booking form + hours
+├── faq.html                 ← 25+ FAQ accordions
+├── css/
+│   └── styles.css           ← Main stylesheet
+├── js/
+│   └── main.js              ← Main site JavaScript
+├── admin/                   ← Admin panel (OAuth protected)
+│   ├── index.html           ← Login page (Google OAuth)
+│   ├── dashboard.html       ← Editor hub
+│   ├── treatments-editor.html
+│   ├── pricing-editor.html
+│   ├── hours-editor.html
+│   ├── team-editor.html
+│   ├── faq-editor.html
+│   ├── knowledge-base-editor.html
+│   ├── css/
+│   │   └── admin-styles.css
+│   └── js/
+│       ├── admin-config.js  ← Auto-generated by setup.sh
+│       ├── admin-auth.js    ← Cognito JWT auth
+│       ├── admin-main.js    ← Shared UI utilities
+│       └── *-editor.js      ← Per-page editor logic
+├── lambda/
+│   ├── index.js             ← Lambda handler (S3 + CF)
+│   └── package.json
+├── knowledge-base.md        ← 50 Q&As for RAG systems
+├── aws-deploy.md            ← Main site AWS setup guide
+├── README-admin.md          ← Admin panel setup guide
+├── package.json
+└── .gitignore
 ```
+
+> `setup.sh` and `aws-deploy.sh` are excluded from git (contain credentials).
 
 ---
 
@@ -605,12 +445,12 @@ serenity-spa-wellness-site/
 
 **Serenity Spa & Wellness** is a fictional business created for portfolio demonstration.
 
-This code is open for reference and learning. If you adapt it for your own project, a credit in the README or comments is appreciated but not required.
+This code is open for reference and learning. Credit appreciated but not required.
 
 ```
-Inspired by: Serenity Spa & Wellness Demo
-Built with: HTML5, CSS3, Vanilla JavaScript
-Deployed on: AWS S3 + CloudFront
+Built with: HTML5, CSS3, Vanilla JavaScript, Node.js
+Auth:       AWS Cognito + Google OAuth 2.0
+Deployed:   AWS S3 + CloudFront + Lambda + API Gateway
 ```
 
 ---
@@ -619,6 +459,4 @@ Deployed on: AWS S3 + CloudFront
 
 📧 Contact: [Your Portfolio Email]  
 🔗 Portfolio: [Your Portfolio URL]  
-💼 LinkedIn: [Your LinkedIn]  
-
-**Show your work:** Deploy this on AWS and share the live link. It makes a great talking point in interviews.
+💼 LinkedIn: [Your LinkedIn]
