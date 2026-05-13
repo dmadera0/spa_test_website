@@ -3,9 +3,9 @@
 // Do not edit manually — re-run setup.sh to update.
 
 const ADMIN_CONFIG = {
-  apiEndpoint: '',      // API Gateway URL — set by setup.sh
-  cognitoClientId: '',  // Cognito App Client ID — set by setup.sh
-  cognitoDomain: '',    // Cognito Hosted UI domain — set by setup.sh
-  callbackUrl: '',      // OAuth redirect URL — set by setup.sh
-  devMode: true         // Set to false when Cognito is configured
+  apiEndpoint: '',
+  cognitoClientId: '58up8qkeao4ucfctbevhfok9fs',
+  cognitoDomain: 'serenity-spa-admin.auth.us-west-2.amazoncognito.com',
+  callbackUrl: 'https://d3otg5fszt3roj.cloudfront.net/admin/index.html',
+  devMode: false
 };
