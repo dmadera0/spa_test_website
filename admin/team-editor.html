@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Team - Serenity Spa Admin</title>
+  <link rel="stylesheet" href="css/admin-styles.css">
+</head>
+<body class="admin-page">
+  <nav class="admin-nav">
+    <div class="nav-brand">
+      <h1>Serenity Admin</h1>
+    </div>
+    <ul class="nav-menu">
+      <li><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+      <li><a href="treatments-editor.html" class="nav-link">Treatments</a></li>
+      <li><a href="pricing-editor.html" class="nav-link">Pricing</a></li>
+      <li><a href="hours-editor.html" class="nav-link">Hours & Contact</a></li>
+      <li><a href="team-editor.html" class="nav-link active">Team</a></li>
+      <li><a href="faq-editor.html" class="nav-link">FAQ</a></li>
+      <li><a href="knowledge-base-editor.html" class="nav-link">Knowledge Base</a></li>
+    </ul>
+    <div class="nav-user">
+      <span id="user-email" class="user-email"></span>
+      <button id="logout-btn" class="btn-logout">Sign Out</button>
+    </div>
+  </nav>
+
+  <main class="admin-main">
+    <div class="dashboard-header">
+      <h2>Edit Team Members</h2>
+      <p class="subtitle">Manage spa therapist and staff profiles</p>
+    </div>
+
+    <div class="editor-list" id="team-list">
+      <p style="text-align: center; color: #999;">Loading team members...</p>
+    </div>
+
+    <div class="editor-section">
+      <h3>Add Team Member</h3>
+      <form id="team-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="team-name">Full Name *</label>
+            <input type="text" id="team-name" name="name" required placeholder="Jane Smith">
+          </div>
+          <div class="form-group">
+            <label for="team-role">Role/Title *</label>
+            <input type="text" id="team-role" name="role" required placeholder="Massage Therapist">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="team-bio">Bio *</label>
+          <textarea id="team-bio" name="bio" required placeholder="Brief professional background and specialties..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="team-emoji">Profile Emoji</label>
+          <input type="text" id="team-emoji" name="emoji" placeholder="🧖" maxlength="2">
+        </div>
+
+        <div class="form-buttons">
+          <button type="button" class="btn btn-secondary" onclick="document.getElementById('team-form').reset()">Clear</button>
+          <button type="submit" class="btn btn-primary">Add Member</button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="js/admin-config.js"></script>
+  <script src="js/admin-auth.js"></script>
+  <script src="js/admin-main.js"></script>
+  <script src="js/team-editor.js"></script>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Serenity Spa & Wellness</title>
+  <link rel="stylesheet" href="css/admin-styles.css">
+</head>
+<body class="admin-page">
+  <nav class="admin-nav">
+    <div class="nav-brand">
+      <h1>Serenity Admin</h1>
+    </div>
+    <ul class="nav-menu">
+      <li><a href="dashboard.html" class="nav-link active">Dashboard</a></li>
+      <li><a href="treatments-editor.html" class="nav-link">Treatments</a></li>
+      <li><a href="pricing-editor.html" class="nav-link">Pricing</a></li>
+      <li><a href="hours-editor.html" class="nav-link">Hours & Contact</a></li>
+      <li><a href="team-editor.html" class="nav-link">Team</a></li>
+      <li><a href="faq-editor.html" class="nav-link">FAQ</a></li>
+      <li><a href="knowledge-base-editor.html" class="nav-link">Knowledge Base</a></li>
+    </ul>
+    <div class="nav-user">
+      <span id="user-email" class="user-email"></span>
+      <button id="logout-btn" class="btn-logout">Sign Out</button>
+    </div>
+  </nav>
+
+  <main class="admin-main">
+    <div class="dashboard-header">
+      <h2>Dashboard</h2>
+      <p class="subtitle">Manage Serenity Spa website content</p>
+    </div>
+
+    <div class="dashboard-grid">
+      <div class="editor-card">
+        <div class="card-icon">🧖</div>
+        <h3>Treatments</h3>
+        <p>Edit treatment names, descriptions, duration, and pricing</p>
+        <a href="treatments-editor.html" class="btn-card">Edit Treatments</a>
+      </div>
+
+      <div class="editor-card">
+        <div class="card-icon">💳</div>
+        <h3>Pricing & Memberships</h3>
+        <p>Update membership tiers and pricing information</p>
+        <a href="pricing-editor.html" class="btn-card">Edit Pricing</a>
+      </div>
+
+      <div class="editor-card">
+        <div class="card-icon">🕐</div>
+        <h3>Hours & Contact</h3>
+        <p>Update business hours, location, phone, and email</p>
+        <a href="hours-editor.html" class="btn-card">Edit Hours</a>
+      </div>
+
+      <div class="editor-card">
+        <div class="card-icon">👥</div>
+        <h3>Team Members</h3>
+        <p>Edit team member profiles, roles, and bios</p>
+        <a href="team-editor.html" class="btn-card">Edit Team</a>
+      </div>
+
+      <div class="editor-card">
+        <div class="card-icon">❓</div>
+        <h3>FAQ</h3>
+        <p>Update frequently asked questions and answers</p>
+        <a href="faq-editor.html" class="btn-card">Edit FAQ</a>
+      </div>
+
+      <div class="editor-card">
+        <div class="card-icon">📚</div>
+        <h3>Knowledge Base</h3>
+        <p>Manage Q&A pairs for AI/RAG integration</p>
+        <a href="knowledge-base-editor.html" class="btn-card">Edit Knowledge Base</a>
+      </div>
+    </div>
+
+    <div class="dashboard-info">
+      <div class="info-box">
+        <h4>Quick Tips</h4>
+        <ul>
+          <li>Changes are saved to the live website immediately</li>
+          <li>The CDN cache is automatically cleared after each save</li>
+          <li>Use clear, professional language for all content</li>
+          <li>Test your changes on the main website after saving</li>
+        </ul>
+      </div>
+
+      <div class="info-box">
+        <h4>Support</h4>
+        <p>For technical issues or questions about the admin panel, contact the development team.</p>
+      </div>
+    </div>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="js/admin-config.js"></script>
+  <script src="js/admin-auth.js"></script>
+  <script src="js/admin-main.js"></script>
+</body>
+</html>

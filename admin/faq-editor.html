@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit FAQ - Serenity Spa Admin</title>
+  <link rel="stylesheet" href="css/admin-styles.css">
+</head>
+<body class="admin-page">
+  <nav class="admin-nav">
+    <div class="nav-brand">
+      <h1>Serenity Admin</h1>
+    </div>
+    <ul class="nav-menu">
+      <li><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+      <li><a href="treatments-editor.html" class="nav-link">Treatments</a></li>
+      <li><a href="pricing-editor.html" class="nav-link">Pricing</a></li>
+      <li><a href="hours-editor.html" class="nav-link">Hours & Contact</a></li>
+      <li><a href="team-editor.html" class="nav-link">Team</a></li>
+      <li><a href="faq-editor.html" class="nav-link active">FAQ</a></li>
+      <li><a href="knowledge-base-editor.html" class="nav-link">Knowledge Base</a></li>
+    </ul>
+    <div class="nav-user">
+      <span id="user-email" class="user-email"></span>
+      <button id="logout-btn" class="btn-logout">Sign Out</button>
+    </div>
+  </nav>
+
+  <main class="admin-main">
+    <div class="dashboard-header">
+      <h2>Edit FAQ</h2>
+      <p class="subtitle">Manage frequently asked questions</p>
+    </div>
+
+    <div class="editor-section">
+      <h3>Filter by Category</h3>
+      <div class="form-group">
+        <select id="category-filter" onchange="FAQEditor.filterByCategory(this.value)">
+          <option value="">All Categories</option>
+          <option value="booking">Booking & Appointments</option>
+          <option value="treatments">Treatments & Services</option>
+          <option value="pricing">Pricing & Membership</option>
+          <option value="health">Health & Wellness</option>
+          <option value="policies">Business Policies</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="editor-list" id="faq-list">
+      <p style="text-align: center; color: #999;">Loading FAQ items...</p>
+    </div>
+
+    <div class="editor-section">
+      <h3>Add New FAQ</h3>
+      <form id="faq-form">
+        <div class="form-group">
+          <label for="faq-category">Category *</label>
+          <select id="faq-category" name="category" required>
+            <option value="">Select Category</option>
+            <option value="booking">Booking & Appointments</option>
+            <option value="treatments">Treatments & Services</option>
+            <option value="pricing">Pricing & Membership</option>
+            <option value="health">Health & Wellness</option>
+            <option value="policies">Business Policies</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="faq-question">Question *</label>
+          <input type="text" id="faq-question" name="question" required placeholder="What should I bring to my appointment?">
+        </div>
+
+        <div class="form-group">
+          <label for="faq-answer">Answer *</label>
+          <textarea id="faq-answer" name="answer" required placeholder="Provide a helpful and detailed answer..."></textarea>
+        </div>
+
+        <div class="form-buttons">
+          <button type="button" class="btn btn-secondary" onclick="document.getElementById('faq-form').reset()">Clear</button>
+          <button type="submit" class="btn btn-primary">Add FAQ</button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="js/admin-config.js"></script>
+  <script src="js/admin-auth.js"></script>
+  <script src="js/admin-main.js"></script>
+  <script src="js/faq-editor.js"></script>
+</body>
+</html>

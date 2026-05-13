@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Knowledge Base - Serenity Spa Admin</title>
+  <link rel="stylesheet" href="css/admin-styles.css">
+</head>
+<body class="admin-page">
+  <nav class="admin-nav">
+    <div class="nav-brand">
+      <h1>Serenity Admin</h1>
+    </div>
+    <ul class="nav-menu">
+      <li><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+      <li><a href="treatments-editor.html" class="nav-link">Treatments</a></li>
+      <li><a href="pricing-editor.html" class="nav-link">Pricing</a></li>
+      <li><a href="hours-editor.html" class="nav-link">Hours & Contact</a></li>
+      <li><a href="team-editor.html" class="nav-link">Team</a></li>
+      <li><a href="faq-editor.html" class="nav-link">FAQ</a></li>
+      <li><a href="knowledge-base-editor.html" class="nav-link active">Knowledge Base</a></li>
+    </ul>
+    <div class="nav-user">
+      <span id="user-email" class="user-email"></span>
+      <button id="logout-btn" class="btn-logout">Sign Out</button>
+    </div>
+  </nav>
+
+  <main class="admin-main">
+    <div class="dashboard-header">
+      <h2>Edit Knowledge Base</h2>
+      <p class="subtitle">Manage Q&A pairs for AI/RAG integration</p>
+    </div>
+
+    <div class="editor-section">
+      <h3>Filter by Category</h3>
+      <div class="form-group">
+        <select id="category-filter" onchange="KnowledgeBaseEditor.filterByCategory(this.value)">
+          <option value="">All Categories</option>
+          <option value="booking">Booking</option>
+          <option value="treatments">Treatments</option>
+          <option value="pricing">Pricing</option>
+          <option value="health">Health</option>
+          <option value="policies">Policies</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="editor-list" id="kb-list">
+      <p style="text-align: center; color: #999;">Loading knowledge base items...</p>
+    </div>
+
+    <div class="editor-section">
+      <h3>Add New Q&A Entry</h3>
+      <form id="kb-form">
+        <div class="form-group">
+          <label for="kb-category">Category *</label>
+          <select id="kb-category" name="category" required>
+            <option value="">Select Category</option>
+            <option value="booking">Booking</option>
+            <option value="treatments">Treatments</option>
+            <option value="pricing">Pricing</option>
+            <option value="health">Health</option>
+            <option value="policies">Policies</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="kb-question">Question *</label>
+          <input type="text" id="kb-question" name="question" required placeholder="How far in advance should I book?">
+        </div>
+
+        <div class="form-group">
+          <label for="kb-answer">Answer *</label>
+          <textarea id="kb-answer" name="answer" required placeholder="Provide a complete and accurate answer..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="kb-tags">Tags (comma-separated)</label>
+          <input type="text" id="kb-tags" name="tags" placeholder="booking, appointments, scheduling">
+        </div>
+
+        <div class="form-buttons">
+          <button type="button" class="btn btn-secondary" onclick="document.getElementById('kb-form').reset()">Clear</button>
+          <button type="submit" class="btn btn-primary">Add Entry</button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="js/admin-config.js"></script>
+  <script src="js/admin-auth.js"></script>
+  <script src="js/admin-main.js"></script>
+  <script src="js/knowledge-base-editor.js"></script>
+</body>
+</html>
