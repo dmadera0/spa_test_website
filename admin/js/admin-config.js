@@ -4,7 +4,7 @@
 
 const ADMIN_CONFIG = {
   apiEndpoint: '',
-  cognitoClientId: '58up8qkeao4ucfctbevhfok9fs',
+  cognitoClientId: '4e8s1aaj0p0fm45idpucre4mm3',
   cognitoDomain: 'serenity-spa-admin.auth.us-west-2.amazoncognito.com',
   callbackUrl: 'https://d3otg5fszt3roj.cloudfront.net/admin/index.html',
   devMode: false
