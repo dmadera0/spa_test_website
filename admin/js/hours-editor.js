@@ -1,5 +1,17 @@
-// Hours Editor
-// Handles editing business hours and contact information
+/**
+ * Hours & Contact Editor (hours-editor.js)
+ * ------------------------------------------------------------
+ * Edits the business contact details and weekly opening hours on contact.html.
+ * Times are shown as <input type="time"> (24h "HH:MM") in the form and stored
+ * on the page as display strings like "9:00am" — see timeToInput()/inputToDisplay().
+ *
+ * ⚠️ KNOWN LIMITATION: the selectors used here (`[data-phone]`, `[data-day]`,
+ * `.open-time` ...) don't exist in the live contact.html yet, and each save
+ * generates only a fragment. The Lambda now rejects fragment saves (HTTP 422)
+ * instead of wiping the live Contact page. Note the two forms also both write
+ * contact.html, so a full fix needs to update the page in place.
+ * See README "Known limitations".
+ */
 
 const HoursEditor = {
   contactInfo: {},
@@ -171,51 +183,13 @@ const HoursEditor = {
   },
 
   // Save contact info
-  async saveContactInfo() {
-    try {
-      AdminUI.showToast('Saving contact information...', 'info');
-
-      const response = await AdminAuth.request('/admin/api/content', {
-        method: 'PUT',
-        body: JSON.stringify({
-          file: 'contact.html',
-          content: this.generateContactHTML()
-        })
-      });
-
-      if (!response || !response.ok) {
-        throw new Error('Save failed');
-      }
-
-      AdminUI.showToast('Contact information saved!', 'success');
-    } catch (error) {
-      console.error('Failed to save contact info:', error);
-      AdminUI.showToast('Failed to save contact info', 'error');
-    }
+  saveContactInfo() {
+    return AdminUI.saveFile('contact.html', this.generateContactHTML(), 'contact information');
   },
 
   // Save hours
-  async saveHours() {
-    try {
-      AdminUI.showToast('Saving business hours...', 'info');
-
-      const response = await AdminAuth.request('/admin/api/content', {
-        method: 'PUT',
-        body: JSON.stringify({
-          file: 'contact.html',
-          content: this.generateHoursHTML()
-        })
-      });
-
-      if (!response || !response.ok) {
-        throw new Error('Save failed');
-      }
-
-      AdminUI.showToast('Business hours saved!', 'success');
-    } catch (error) {
-      console.error('Failed to save hours:', error);
-      AdminUI.showToast('Failed to save hours', 'error');
-    }
+  saveHours() {
+    return AdminUI.saveFile('contact.html', this.generateHoursHTML(), 'business hours');
   },
 
   // Generate contact HTML
@@ -258,11 +232,8 @@ const HoursEditor = {
     `;
   },
 
-  // Escape HTML
   escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
+    return AdminUI.escapeHtml(text);
   }
 };
 

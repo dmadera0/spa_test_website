@@ -1,23 +1,51 @@
-// Knowledge Base Editor
-// Handles editing RAG-formatted Q&A entries
+/**
+ * Knowledge Base Editor (knowledge-base-editor.js)
+ * ------------------------------------------------------------
+ * Edits knowledge-base.md — the Q&A file that feeds the AI chat assistant.
+ *
+ * File format (one entry per block, blocks separated by a line of "---"):
+ *
+ *   id: KB001
+ *   category: booking
+ *   question: How do I book an appointment?
+ *   answer: You can book online, by phone, or in person...
+ *   tags: [booking, appointment, contact]
+ *
+ * The file also starts with a "#" comment header and contains "## CATEGORY ..."
+ * section headings. On load we keep the header and pick out only the Q&A blocks;
+ * on save we write the header back, then regenerate the category headings and
+ * entries so the file stays in the same shape the RAG pipeline expects.
+ */
+
+const KB_FILE = 'knowledge-base.md';
+
+// Order + display names for categories (must match the <select> options in the HTML).
+const KB_CATEGORIES = {
+  booking: 'Booking & Appointments',
+  treatments: 'Treatments & Services',
+  pricing: 'Pricing & Membership',
+  health: 'Health & Wellness',
+  policies: 'Business Policies'
+};
 
 const KnowledgeBaseEditor = {
-  kbItems: [],
-  filteredItems: [],
+  kbItems: [],       // every entry in the file
+  filteredItems: [], // what's shown after the category filter
+  header: '',        // the "#" comment block at the top of the file
+  editingIdx: null,  // index into kbItems while editing, null when adding
 
   async init() {
     await this.loadKnowledgeBase();
     this.setupForm();
   },
 
-  // Load knowledge base
   async loadKnowledgeBase() {
     try {
-      const response = await AdminAuth.request('/admin/api/content?file=knowledge-base.md');
+      const response = await AdminAuth.request(`/admin/api/content?file=${KB_FILE}`);
       if (!response) return;
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-      const text = await response.text();
-      this.parseKnowledgeBase(text);
+      this.parseKnowledgeBase(await response.text());
       this.renderKBList();
     } catch (error) {
       console.error('Failed to load knowledge base:', error);
@@ -25,29 +53,37 @@ const KnowledgeBaseEditor = {
     }
   },
 
-  // Parse knowledge base from markdown
+  // Turn the markdown file into an array of { id, category, question, answer, tags }.
   parseKnowledgeBase(text) {
-    const entries = text.split('\n---\n').filter(entry => entry.trim());
+    const blocks = text.replace(/\r\n/g, '\n').split(/\n---\n/);
 
-    this.kbItems = entries.map((entry, idx) => {
-      const lines = entry.trim().split('\n');
-      const item = { id: `kb-${idx}` };
+    // Everything before the first separator is the file's comment header.
+    this.header = blocks[0].trim().startsWith('#') ? blocks[0].trim() : '';
 
-      lines.forEach(line => {
-        if (line.startsWith('id:')) item.id = line.replace('id:', '').trim();
-        if (line.startsWith('category:')) item.category = line.replace('category:', '').trim();
-        if (line.startsWith('question:')) item.question = line.replace('question:', '').trim();
-        if (line.startsWith('answer:')) item.answer = line.replace('answer:', '').trim();
-        if (line.startsWith('tags:')) item.tags = line.replace('tags:', '').trim().split(',').map(t => t.trim());
+    this.kbItems = blocks
+      .filter(block => /^id:/m.test(block)) // skip the header and "## CATEGORY" blocks
+      .map(block => {
+        const item = { id: '', category: '', question: '', answer: '', tags: [] };
+        block.trim().split('\n').forEach(line => {
+          const match = line.match(/^(id|category|question|answer|tags):\s*(.*)$/);
+          if (!match) return;
+          const [, key, value] = match;
+          item[key] = key === 'tags' ? this.parseTags(value) : value.trim();
+        });
+        return item;
       });
-
-      return item;
-    });
 
     this.filteredItems = [...this.kbItems];
   },
 
-  // Render KB list
+  // "[a, b, c]" or "a, b, c" → ['a', 'b', 'c']
+  parseTags(value) {
+    return value.replace(/^\[|\]$/g, '')
+      .split(',')
+      .map(t => t.trim())
+      .filter(Boolean);
+  },
+
   renderKBList() {
     const list = document.getElementById('kb-list');
     if (!list) return;
@@ -57,150 +93,149 @@ const KnowledgeBaseEditor = {
       return;
     }
 
-    list.innerHTML = this.filteredItems.map((item, idx) => {
-      const actualIdx = this.kbItems.indexOf(item);
+    const esc = AdminUI.escapeHtml;
+    list.innerHTML = this.filteredItems.map(item => {
+      // Buttons use the index in the full list, not the filtered list.
+      const idx = this.kbItems.indexOf(item);
       return `
         <div class="list-item">
           <div class="list-item-info">
-            <h4>${this.escapeHtml(item.question)}</h4>
-            <p>${this.escapeHtml(item.answer?.substring(0, 100) || 'No answer')}...</p>
+            <h4>${esc(item.id)} — ${esc(item.question)}</h4>
+            <p>${esc((item.answer || 'No answer').substring(0, 100))}...</p>
             <p style="margin-top: 0.5rem; font-size: 0.85rem; color: #999;">
-              Category: ${this.escapeHtml(item.category || 'uncategorized')}
-              ${item.tags ? `• Tags: ${item.tags.join(', ')}` : ''}
+              Category: ${esc(KB_CATEGORIES[item.category] || item.category || 'uncategorized')}
+              ${item.tags.length ? `• Tags: ${esc(item.tags.join(', '))}` : ''}
             </p>
           </div>
           <div class="list-item-actions">
-            <button class="btn btn-secondary" onclick="KnowledgeBaseEditor.editItem(${actualIdx})">Edit</button>
-            <button class="btn btn-danger" onclick="KnowledgeBaseEditor.deleteItem(${actualIdx})">Delete</button>
+            <button class="btn btn-secondary" onclick="KnowledgeBaseEditor.editItem(${idx})">Edit</button>
+            <button class="btn btn-danger" onclick="KnowledgeBaseEditor.deleteItem(${idx})">Delete</button>
           </div>
         </div>
       `;
     }).join('');
   },
 
-  // Filter by category
   filterByCategory(category) {
-    if (category) {
-      this.filteredItems = this.kbItems.filter(item => item.category === category);
-    } else {
-      this.filteredItems = [...this.kbItems];
-    }
+    this.filteredItems = category
+      ? this.kbItems.filter(item => item.category === category)
+      : [...this.kbItems];
     this.renderKBList();
   },
 
-  // Setup form
+  refreshList() {
+    const filter = document.getElementById('category-filter');
+    this.filterByCategory(filter ? filter.value : '');
+  },
+
   setupForm() {
     const form = document.getElementById('kb-form');
-    if (form) {
-      form.addEventListener('submit', (e) => this.handleFormSubmit(e));
-    }
+    if (!form) return;
+    // One submit handler handles both "add" and "update" (see editingIdx).
+    form.addEventListener('submit', (e) => this.handleFormSubmit(e));
+    // The "Clear" button resets the form — also leave edit mode.
+    form.addEventListener('reset', () => this.exitEditMode());
   },
 
-  // Handle form submission
   async handleFormSubmit(e) {
     e.preventDefault();
+    const form = e.target;
+    const formData = new FormData(form);
 
-    const formData = new FormData(e.target);
-    const newItem = {
-      id: `kb-${Date.now()}`,
+    const data = {
       category: formData.get('category'),
-      question: formData.get('question'),
-      answer: formData.get('answer'),
-      tags: formData.get('tags') ? formData.get('tags').split(',').map(t => t.trim()) : []
+      question: formData.get('question').trim(),
+      answer: formData.get('answer').replace(/\s*\n\s*/g, ' ').trim(), // one line per field in the file
+      tags: this.parseTags(formData.get('tags') || '')
     };
 
-    this.kbItems.push(newItem);
-    this.filteredItems = [...this.kbItems];
-    await this.saveKnowledgeBase();
-    e.target.reset();
-    this.renderKBList();
+    if (this.editingIdx !== null) {
+      Object.assign(this.kbItems[this.editingIdx], data);
+    } else {
+      this.kbItems.push({ id: this.nextId(), ...data });
+    }
+
+    if (await this.saveKnowledgeBase()) {
+      form.reset(); // also triggers exitEditMode()
+    }
+    this.refreshList();
   },
 
-  // Edit item
+  // Next sequential id in the existing "KB050" style.
+  nextId() {
+    const max = this.kbItems.reduce((n, item) => {
+      const num = parseInt((item.id.match(/\d+/) || ['0'])[0], 10);
+      return Math.max(n, num);
+    }, 0);
+    return `KB${String(max + 1).padStart(3, '0')}`;
+  },
+
   editItem(idx) {
     const item = this.kbItems[idx];
     if (!item) return;
 
     const form = document.getElementById('kb-form');
-    form.dataset.itemIdx = idx;
-    form['category'].value = item.category || '';
-    form['question'].value = item.question || '';
-    form['answer'].value = item.answer || '';
-    form['tags'].value = item.tags ? item.tags.join(', ') : '';
+    form['category'].value = item.category;
+    form['question'].value = item.question;
+    form['answer'].value = item.answer;
+    form['tags'].value = item.tags.join(', ');
 
+    this.editingIdx = idx;
+    form.querySelector('button[type="submit"]').textContent = 'Update Entry';
     form.scrollIntoView({ behavior: 'smooth' });
-    const submitBtn = form.querySelector('button[type="submit"]');
-    submitBtn.textContent = 'Update Entry';
-
-    form.onsubmit = async (e) => {
-      e.preventDefault();
-      item.category = form['category'].value;
-      item.question = form['question'].value;
-      item.answer = form['answer'].value;
-      item.tags = form['tags'].value ? form['tags'].value.split(',').map(t => t.trim()) : [];
-
-      await this.saveKnowledgeBase();
-      form.reset();
-      submitBtn.textContent = 'Add Entry';
-      form.onsubmit = (e) => this.handleFormSubmit(e);
-      this.filterByCategory(document.getElementById('category-filter').value);
-    };
   },
 
-  // Delete item
-  deleteItem(idx) {
-    if (confirm('Are you sure you want to delete this knowledge base entry?')) {
-      this.kbItems.splice(idx, 1);
-      this.filteredItems = this.filteredItems.filter(item => item.id !== this.kbItems[idx]?.id);
-      this.saveKnowledgeBase();
-      this.renderKBList();
-    }
+  exitEditMode() {
+    this.editingIdx = null;
+    const btn = document.querySelector('#kb-form button[type="submit"]');
+    if (btn) btn.textContent = 'Add Entry';
   },
 
-  // Save knowledge base
-  async saveKnowledgeBase() {
-    try {
-      AdminUI.showToast('Saving knowledge base...', 'info');
-
-      const response = await AdminAuth.request('/admin/api/content', {
-        method: 'PUT',
-        body: JSON.stringify({
-          file: 'knowledge-base.md',
-          content: this.generateKnowledgeBaseMarkdown()
-        })
-      });
-
-      if (!response || !response.ok) {
-        throw new Error('Save failed');
-      }
-
-      AdminUI.showToast('Knowledge base saved successfully!', 'success');
-    } catch (error) {
-      console.error('Failed to save knowledge base:', error);
-      AdminUI.showToast('Failed to save knowledge base', 'error');
-    }
+  async deleteItem(idx) {
+    if (!confirm('Are you sure you want to delete this knowledge base entry?')) return;
+    this.kbItems.splice(idx, 1);
+    this.exitEditMode(); // indexes shifted, so any in-progress edit is no longer valid
+    this.refreshList();
+    await this.saveKnowledgeBase();
   },
 
-  // Generate knowledge base markdown
+  saveKnowledgeBase() {
+    return AdminUI.saveFile(KB_FILE, this.generateKnowledgeBaseMarkdown(), 'knowledge base');
+  },
+
+  // Rebuild the full markdown file: header, then entries grouped by category.
   generateKnowledgeBaseMarkdown() {
-    return this.kbItems.map(item => `
-id: ${item.id}
-category: ${item.category}
-question: ${item.question}
-answer: ${item.answer}
-tags: ${item.tags ? item.tags.join(', ') : ''}
-    `.trim()).join('\n---\n');
-  },
+    const parts = [];
+    if (this.header) parts.push(this.header);
 
-  // Escape HTML
-  escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
+    // Known categories first (in a fixed order), then any unexpected ones.
+    const categories = [
+      ...Object.keys(KB_CATEGORIES),
+      ...new Set(this.kbItems.map(i => i.category).filter(c => !(c in KB_CATEGORIES)))
+    ];
+
+    categories.forEach((cat, n) => {
+      const items = this.kbItems.filter(item => item.category === cat);
+      if (!items.length) return;
+
+      const label = (KB_CATEGORIES[cat] || cat).toUpperCase();
+      parts.push(`\n## CATEGORY ${n + 1}: ${label} (${items.length} Q&As)`);
+
+      items.forEach(item => {
+        parts.push([
+          `id: ${item.id}`,
+          `category: ${item.category}`,
+          `question: ${item.question}`,
+          `answer: ${item.answer}`,
+          `tags: [${item.tags.join(', ')}]`
+        ].join('\n'));
+      });
+    });
+
+    return parts.join('\n\n---\n') + '\n';
   }
 };
 
-// Initialize
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => KnowledgeBaseEditor.init());
 } else {

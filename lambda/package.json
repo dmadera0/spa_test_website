@@ -3,9 +3,13 @@
   "version": "1.0.0",
   "description": "Lambda backend for Serenity Spa admin panel",
   "main": "index.js",
+  "private": true,
+  "scripts": {
+    "test": "node --test"
+  },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.0.0",
-    "@aws-sdk/client-cloudfront": "^3.0.0"
+    "@aws-sdk/client-cloudfront": "^3.400.0",
+    "@aws-sdk/client-s3": "^3.400.0"
   },
   "engines": {
     "node": ">=20"

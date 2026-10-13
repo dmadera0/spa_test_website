@@ -1,462 +1,197 @@
 # 🌿 Serenity Spa & Wellness Website
 
-![Status](https://img.shields.io/badge/status-production%20ready-brightgreen)
-![License](https://img.shields.io/badge/license-proprietary-blue)
 ![Pages](https://img.shields.io/badge/pages-6-informational)
-![Size](https://img.shields.io/badge/gzip-25--35%20KB-success)
-![Accessibility](https://img.shields.io/badge/WCAG-2.1%20AA-brightgreen)
-![Admin](https://img.shields.io/badge/admin-OAuth%202.0-purple)
+![Frontend](https://img.shields.io/badge/frontend-vanilla%20JS-yellow)
+![Hosting](https://img.shields.io/badge/AWS-S3%20%2B%20CloudFront-orange)
+![Admin](https://img.shields.io/badge/admin-Cognito%20%2B%20Google%20OAuth-purple)
 
-A **production-ready, zero-dependency static website** for a fictional Portland spa — with a **fully integrated OAuth-protected admin panel** for live content management. Built with pure HTML5, CSS3, and vanilla JavaScript on the frontend; AWS Cognito, Lambda, and API Gateway on the backend.
+A static website for a **fictional** Portland spa, plus an OAuth-protected admin panel and an embeddable AI chat widget. The public site is plain HTML, CSS and JavaScript with no build step; the admin backend runs on AWS Cognito, API Gateway and Lambda.
 
-**[🚀 Live Demo](https://d3otg5fszt3roj.cloudfront.net/)** • **[🔐 Admin Panel](https://d3otg5fszt3roj.cloudfront.net/admin/)** • **[📖 Admin Setup Guide](README-admin.md)** • **[💬 Knowledge Base](knowledge-base.md)**
+**[🚀 Live Demo](https://d3otg5fszt3roj.cloudfront.net/)** • **[🔐 Admin Panel](https://d3otg5fszt3roj.cloudfront.net/admin/)** • **[📖 Admin Setup Guide](README-admin.md)** • **[☁️ AWS Hosting Guide](aws-deploy.md)** • **[💬 Knowledge Base](knowledge-base.md)**
 
 ---
 
-## 📋 Table of Contents
+## Contents
 
-- [Overview](#overview)
-- [Key Features](#key-features)
-- [Tech Stack](#tech-stack)
-- [Admin Panel](#admin-panel)
-- [Local Setup](#local-setup)
-- [Customization](#customization)
+- [What this project shows](#what-this-project-shows)
+- [Architecture](#architecture)
+- [How the pieces work](#how-the-pieces-work)
+- [Project structure](#project-structure)
+- [Run it locally](#run-it-locally)
+- [Tests](#tests)
 - [Deployment](#deployment)
-- [Performance](#performance)
-- [What I Built](#what-i-built)
-- [Portfolio Highlights](#portfolio-highlights)
+- [Known limitations & roadmap](#known-limitations--roadmap)
+- [Customization](#customization)
 
 ---
 
-## Overview
+## What this project shows
 
-This project demonstrates a **complete, professional spa website** ready for AWS S3 + CloudFront hosting — plus a **password-protected admin panel** that lets non-technical staff edit live content without touching code.
-
-It's also designed as a **test bed for AI/RAG customer service agents** with a structured 50-question knowledge base in `knowledge-base.md`.
-
-**Project Goals:**
-✅ Zero external dependencies on the frontend  
-✅ Mobile-first responsive design  
-✅ WCAG 2.1 AA accessibility compliance  
-✅ AWS S3 + CloudFront optimized  
-✅ Google OAuth staff authentication (Cognito)  
-✅ Live content editing via Lambda API  
-✅ Automated CloudFront invalidation on save  
+| Area | What's here |
+|------|-------------|
+| **Frontend fundamentals** | 6 responsive pages, mobile-first CSS (Grid/Flexbox, custom properties), ~400 lines of framework-free JS |
+| **Accessibility** | Semantic landmarks, keyboard-navigable accordions and menu, ARIA states, live regions, linked form errors |
+| **Static hosting on AWS** | S3 origin behind CloudFront (HTTPS, caching, invalidations) |
+| **Authentication** | OAuth 2.0 authorization-code flow: Google → Cognito Hosted UI → JWT, with `state` CSRF check |
+| **Serverless API** | API Gateway JWT authorizer → one Lambda that reads/writes site files in S3 and invalidates CloudFront |
+| **AI integration** | Embeddable chat widget + a 50-entry structured Q&A file designed for RAG / vector-DB ingestion |
 
 ---
 
-## Key Features
+## Architecture
 
-| Feature | Details |
-|---------|---------|
-| **Pages** | 6 fully responsive pages (index, treatments, services, about, contact, faq) |
-| **Design** | Purple-primary spa aesthetic, mobile-first, smooth animations |
-| **Navigation** | Sticky header with hamburger mobile menu, keyboard accessible |
-| **Forms** | Booking form with real-time validation, no backend required |
-| **Interactivity** | FAQ accordions (one-open), treatment filter, smooth scrolling |
-| **Accessibility** | WCAG 2.1 AA: ARIA labels, keyboard nav, focus styles, semantic HTML |
-| **Performance** | ~35 KB gzipped, no external assets |
-| **Admin Panel** | Google OAuth login, 8 editor pages, live S3 + CloudFront updates |
-| **Hosting** | AWS S3 + CloudFront (cache headers, automated invalidation) |
+```mermaid
+flowchart LR
+    V[Visitor] -->|HTTPS| CF[CloudFront]
+    CF --> S3[(S3 bucket<br/>HTML / CSS / JS)]
 
----
+    A[Staff] -->|Sign in with Google| COG[Cognito Hosted UI]
+    COG -->|id_token JWT| ADM[Admin panel<br/>/admin/]
+    ADM -->|Bearer JWT| APIGW[API Gateway<br/>JWT authorizer]
+    APIGW --> L[Lambda<br/>lambda/index.js]
+    L -->|Get/PutObject| S3
+    L -->|CreateInvalidation| CF
 
-## Tech Stack
-
-```
-Frontend (Main Website):
-├── HTML5 (semantic structure, accessibility)
-├── CSS3 (Grid, Flexbox, custom properties, mobile-first)
-└── Vanilla JavaScript (~400 lines, no frameworks)
-
-Frontend (Admin Panel):
-├── HTML5 + CSS3 + Vanilla JS (matching no-framework approach)
-├── Google OAuth 2.0 via Cognito Hosted UI
-└── JWT token auth with protected routes
-
-Backend (Admin API):
-├── AWS Lambda (Node.js 20) — content CRUD handler
-├── AWS API Gateway (HTTP API) — JWT-authorized routes
-├── AWS Cognito — User Pool + Google identity provider
-└── IAM Role — scoped S3 + CloudFront permissions
-
-Infrastructure:
-├── AWS S3 (static file hosting)
-├── CloudFront (CDN, HTTPS, global distribution, auto-invalidation)
-└── Route 53 (optional DNS management)
+    V -->|chat messages| W[Chat widget] --> CHAT[Chat API<br/>separate backend]
 ```
 
 ---
 
-## Admin Panel
+## How the pieces work
 
-The admin panel at `/admin/` allows Serenity Spa staff to edit live website content without code. All changes write directly to S3 and automatically clear the CloudFront cache.
+### Public site (`*.html`, `css/styles.css`, `js/main.js`)
+Every page shares the same header, footer and stylesheet. `js/main.js` is one IIFE split into numbered sections; each section checks whether its elements exist, so the same file runs safely on every page:
 
-### Authentication
+1. **Navigation** — scroll shadow, hamburger menu (closes on link click, outside click, or Escape), current-page highlighting
+2. **FAQ accordion** — one panel open at a time, Arrow/Home/End keyboard support, `aria-expanded`
+3. **Treatment filter** — category buttons toggle cards and announce the result count to screen readers
+4. **Contact form validation** — rules declared in HTML (`data-validate="required|email"`), validated on blur and submit; submission is simulated (no backend)
+5. **Smooth scroll** for in-page links, offset by the sticky nav height
+6. **Helpers** — screen-reader announcer and scroll-triggered entrance animations
 
-Sign-in is handled by **Google OAuth 2.0** via AWS Cognito:
+### Admin panel (`admin/`)
+- **`admin-auth.js`** — the sign-in flow. Redirects to Cognito with a random `state`, verifies it on return, swaps the one-time `code` for an `id_token`, and stores it. `AdminAuth.request()` wraps `fetch` with the Bearer token and logs out on a 401.
+- **`admin-main.js`** — shared helpers: toasts, nav highlighting, `escapeHtml()`, and `saveFile()` (the single place that PUTs to the API).
+- **`*-editor.js`** — one file per editor page. Each loads its target file from the API, parses it with `DOMParser`, renders a list, and saves on add/edit/delete.
 
-```
-Staff clicks "Sign in with Google"
-    → Redirects to Cognito Hosted UI
-    → Cognito authenticates via Google
-    → Returns authorization code
-    → Exchanges code for JWT (id_token)
-    → JWT stored in localStorage
-    → All API calls include Bearer token
-    → API Gateway validates JWT against Cognito
-    → Lambda executes if token is valid
-```
-
-Only email addresses added to the Cognito User Pool can access the admin panel. Unauthorized Google accounts are rejected at the Cognito level.
-
-### Editor Pages
-
-| Page | What You Can Edit |
-|------|------------------|
-| Dashboard | Overview and navigation hub |
-| Treatments | Names, descriptions, categories, duration, prices |
-| Pricing | Membership tiers, monthly prices, benefit lists |
-| Hours & Contact | Business hours, phone, email, address |
-| Team | Staff profiles, roles, bios |
-| FAQ | Questions and answers by category |
-| Knowledge Base | RAG Q&A pairs with tags and metadata |
-
-### API Endpoints
-
-All endpoints require `Authorization: Bearer <id_token>`.
+### Admin API (`lambda/index.js`)
+One Lambda serves all routes. API Gateway has already verified the JWT, so the handler reads the user's email from the passed-in claims.
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `GET` | `/admin/api/content?file={name}` | Read file from S3 |
-| `PUT` | `/admin/api/content` | Write file + invalidate CloudFront |
-| `GET` | `/admin/api/me` | Return authenticated user info |
+| `GET` | `/admin/api/content?file={name}` | Read a whitelisted file from S3 |
+| `PUT` | `/admin/api/content` | Write a whitelisted file, then invalidate it in CloudFront |
+| `GET` | `/admin/api/me` | Return the signed-in user's email/name |
 
-### Setup
+Safeguards: a file whitelist (no arbitrary S3 keys), and HTML writes are rejected with **422** unless they're a complete document, so a bad save can't wipe a live page.
 
-See **[README-admin.md](README-admin.md)** for the complete setup guide, including Google Cloud Console OAuth credential instructions and `setup.sh` deployment automation.
+### Chat widget (`widget/serenity-widget.js`)
+A single-file, dependency-free ES5 script any site can embed. It injects its own `sw-`-prefixed styles, renders a launcher and chat panel, and POSTs messages to a configurable API. Included on `index.html`.
 
 ---
 
-## Local Setup
+## Project structure
 
-### ⚡ Quickest: Direct in Browser
-```bash
-open index.html
+```
+spa_test_website/
+├── index.html, treatments.html, services.html,
+│   about.html, contact.html, faq.html     ← public pages
+├── css/styles.css                         ← site styles (design tokens in :root)
+├── js/main.js                             ← site interactivity
+├── widget/serenity-widget.js              ← embeddable AI chat widget
+├── admin/
+│   ├── index.html                         ← login (Google via Cognito)
+│   ├── dashboard.html                     ← editor hub
+│   ├── *-editor.html                      ← 6 editor pages
+│   ├── css/admin-styles.css
+│   └── js/
+│       ├── admin-config.js                ← Cognito/API settings (generated by setup.sh)
+│       ├── admin-auth.js                  ← OAuth flow + authenticated fetch
+│       ├── admin-main.js                  ← shared UI helpers + saveFile()
+│       └── *-editor.js                    ← per-page editor logic
+├── lambda/
+│   ├── index.js                           ← admin API handler
+│   ├── index.test.js                      ← unit tests (node:test)
+│   └── package.json
+├── knowledge-base.md                      ← 50 Q&A pairs for RAG
+├── aws-deploy.md                          ← hosting setup guide
+└── README-admin.md                        ← admin panel setup guide
 ```
 
-### ✨ Recommended: Local HTTP Server
+> `setup.sh` and `aws-deploy.sh` are deployment scripts kept out of git (see `.gitignore`) because they contain account-specific values.
+
+---
+
+## Run it locally
 
 ```bash
-# Node.js
-npm install && npm start
-# → http://localhost:8080
-
-# Python
+npm install
+npm start            # http://localhost:8080
+# or, with no Node:
 python3 -m http.server 8080
-
-# PHP
-php -S localhost:8080
 ```
+
+To click through the admin UI without AWS, set `devMode: true` in `admin/js/admin-config.js` (don't commit that change). Pages render, but loading/saving content still needs the deployed API.
 
 ---
 
-## Customization
+## Tests
 
-### 1️⃣ Update Business Info
-
-Search-and-replace across all HTML files:
-
-| Find | Replace with |
-|------|------|
-| `Serenity Spa & Wellness` | Your business name |
-| `2847 Wellness Drive, Portland, OR 97214` | Your address |
-| `(555) 123-4567` | Your phone |
-| `hello@serenity-spa.com` | Your email |
-| `1999` | Your founding year |
-
-### 2️⃣ Change Brand Colors
-
-Edit `css/styles.css` — find the `:root` block:
-
-```css
-:root {
-  --clr-primary:       #6b5b95;   /* Main brand color */
-  --clr-primary-dark:  #4a3f6b;   /* Hover states */
-  --clr-primary-light: #9b8bc4;   /* Accents */
-  --clr-accent:        #c9b99a;   /* Warm complement */
-}
-```
-
-### 3️⃣ Update Prices
-
-**`treatments.html`** — each treatment card:
-```html
-<span class="treatment-card-price">$85 · $125</span>
-```
-
-### 4️⃣ Update Team Members
-
-**`about.html`** — team section:
-```html
-<div class="team-name">Your Name</div>
-<div class="team-role">Your Role</div>
-<p class="team-bio">Your bio text...</p>
-```
-
-### 5️⃣ Update Hours
-
-**`contact.html`** — hours table section. Also update footer hours in all 6 pages.
-
-### 6️⃣ Add Real Images
+The Lambda's request validation is covered by unit tests that run without AWS credentials:
 
 ```bash
-mkdir images/
-# Add .jpg or .webp files, then replace .visual-block divs:
-```
-```html
-<img src="images/treatment-room.webp"
-     alt="Treatment room"
-     loading="lazy"
-     width="600" height="450" />
-```
-
-### 7️⃣ Add Analytics
-
-Add before `</head>` in each HTML file:
-```html
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-YOUR_ID"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-YOUR_ID');
-</script>
-```
-
-### 8️⃣ Connect Real Form Backend
-
-```html
-<!-- Formspree (easiest) -->
-<form id="contact-form" action="https://formspree.io/f/YOUR_ID" method="POST">
+cd lambda
+npm install
+npm test
 ```
 
 ---
 
 ## Deployment
 
-### 🚀 Quick Deploy (Single File)
+Full walkthroughs: [aws-deploy.md](aws-deploy.md) (site) and [README-admin.md](README-admin.md) (admin backend).
 
 ```bash
-aws s3 cp index.html s3://serenity-spa-wellness-site/index.html \
-  --content-type "text/html; charset=utf-8" \
-  --cache-control "public, max-age=3600"
-
-aws cloudfront create-invalidation \
-  --distribution-id E394G7D2J8ETX3 \
-  --paths "/index.html"
-```
-
-### 🔄 Full Site Sync
-
-```bash
+# Sync the site (skip docs, scripts and tooling)
 aws s3 sync . s3://serenity-spa-wellness-site/ \
   --delete \
-  --exclude ".git/*" \
-  --exclude "*.sh" \
-  --exclude "*.md" \
-  --exclude "node_modules/*"
+  --exclude ".git/*" --exclude "*.sh" --exclude "*.md" \
+  --exclude "node_modules/*" --exclude "lambda/*" --exclude "package*.json"
 
-aws cloudfront create-invalidation \
-  --distribution-id E394G7D2J8ETX3 \
-  --paths "/*"
+# Clear the CDN cache
+aws cloudfront create-invalidation --distribution-id E394G7D2J8ETX3 --paths "/*"
 ```
 
-### 🔐 Deploy Admin Panel
-
-```bash
-# First-time setup (Cognito + Lambda + API Gateway):
-chmod +x setup.sh && ./setup.sh
-
-# Update admin frontend only:
-aws s3 sync admin/ s3://serenity-spa-wellness-site/admin/ --delete
-aws cloudfront create-invalidation \
-  --distribution-id E394G7D2J8ETX3 \
-  --paths "/admin/*"
-```
+After changing `lambda/index.js`, redeploy the function (zip `index.js` + `node_modules`, or use `setup.sh`).
 
 ---
 
-## Performance
+## Known limitations & roadmap
 
-| Metric | Value |
-|--------|-------|
-| **Page Size (gzipped)** | 25–35 KB |
-| **Requests (initial load)** | 3–5 (HTML, CSS, JS only) |
-| **Time to Interactive** | ~1.2s on 3G |
-| **Lighthouse Score** | 95–100 across all metrics |
-| **Admin API latency** | ~200ms (Lambda cold start ~800ms) |
+Being upfront about what isn't finished:
 
----
-
-## Browser Support
-
-| Browser | Support |
-|---------|---------|
-| Chrome 90+ | ✅ Full |
-| Firefox 88+ | ✅ Full |
-| Safari 14+ | ✅ Full |
-| Edge 90+ | ✅ Full |
-| iOS Safari 14+ | ✅ Full |
-| IE 11 | ❌ Not supported |
+- **Treatments, Team, FAQ, Hours and Pricing editors don't match the live page markup yet.** They look for attributes like `data-treatment-id` and `data-faq-id`, which the public pages don't use, so their lists load empty. They also generate a fragment of HTML rather than a full page; the Lambda now rejects those saves (422) instead of overwriting the live page. The Pricing editor also targets `pricing.html`, which doesn't exist (tiers live in `services.html`).
+  **Planned fix:** add stable `data-*` hooks to the public pages, have each editor update only its section of the full page it loaded, and save the whole document.
+- **The Knowledge Base editor is fully working** — it round-trips `knowledge-base.md` byte-for-byte.
+- The contact form simulates submission; connect Formspree, SES or a Lambda to make it real.
+- Tokens are kept in `localStorage`, which is common for SPAs but readable by any script on the admin origin. HttpOnly cookies via a backend would be the hardened version.
+- Hosting is set up through CLI scripts rather than infrastructure-as-code; a CDK or Terraform version would make it reproducible.
 
 ---
 
-## Accessibility (WCAG 2.1 AA)
+## Customization
 
-- ✅ All interactive elements keyboard accessible
-- ✅ FAQ accordions: Arrow keys, Home, End
-- ✅ ARIA labels on nav, forms, accordions, filters
-- ✅ Live regions for dynamic content
-- ✅ `aria-expanded` on accordion triggers
-- ✅ Form errors linked via `aria-describedby`
-- ✅ Sufficient color contrast (≥ 4.5:1)
-- ✅ Semantic HTML5 landmarks throughout
-
----
-
-## What I Built
-
-### Code Stats
-
-| Layer | Lines |
-|-------|-------|
-| HTML (6 pages) | ~5,573 |
-| CSS | 2,053 |
-| JavaScript (main site) | 410 |
-| JavaScript (admin panel) | ~1,200 |
-| Lambda (Node.js) | ~150 |
-| Shell scripts | ~280 |
-| **Total** | **~9,700** |
-
-Zero npm dependencies on the frontend. Zero frameworks.
-
-### Main Website Components
-
-1. **Sticky Navigation** — Scroll shadow, active page detection, hamburger with Escape/click-outside
-2. **FAQ Accordions** — One-open, keyboard nav (arrows, Home, End), ARIA states
-3. **Treatment Filter** — Real-time category filtering, aria-pressed, screen reader announcements
-4. **Contact Form** — Real-time validation (required, email, phone, min-length), no backend
-5. **Responsive Grid** — CSS Grid & Flexbox, breakpoints at 480px, 768px, 1024px+
-6. **Knowledge Base** — 50 structured Q&A pairs ready for RAG/vector DB
-
-### Admin Panel Components
-
-1. **Google OAuth Flow** — Cognito Hosted UI → authorization code → JWT exchange → localStorage
-2. **Protected Routes** — JWT validation on every page load, redirect to login on expiry
-3. **Lambda Content API** — File whitelist, S3 read/write, CloudFront invalidation on every save
-4. **8 Editor Pages** — Treatments, pricing, hours, team, FAQ, knowledge base
-5. **Live Saves** — Every change writes to S3 and invalidates the CloudFront edge cache instantly
-6. **Toast Notifications** — Save success/error feedback throughout
-
-### Pages
-
-| Page | Purpose | Key Features |
-|------|---------|--------------|
-| `index.html` | Landing | Hero, treatments preview, testimonials, CTA |
-| `treatments.html` | Catalog | 12 treatments, category filter |
-| `services.html` | Memberships | 4 pricing tiers, comparison table |
-| `about.html` | Company | History, 8-person team, values |
-| `contact.html` | Booking | Validated form, hours, map placeholder |
-| `faq.html` | Q&A | 25 collapsible questions, 5 categories |
+| What | Where |
+|------|-------|
+| Business name, address, phone, email | Search-and-replace across the HTML files (`Serenity Spa & Wellness`, `(555) 123-4567`, `hello@serenity-spa.com`, ...) |
+| Brand colors | `:root` tokens at the top of `css/styles.css` (`--clr-primary`, `--clr-accent`, ...) |
+| Treatments & prices | `<article class="treatment-card">` blocks in `treatments.html` |
+| Team | `<article class="team-card">` blocks in `about.html` |
+| Hours | Hours table in `contact.html` and the footer of each page |
+| Chat widget | `DemoChat.init({...})` at the bottom of `index.html` |
 
 ---
 
-## Portfolio Highlights
+**Serenity Spa & Wellness is a fictional business** created for portfolio purposes.
 
-✨ **Zero Frontend Dependencies**  
-No npm packages, no frameworks, no build step. Pure web fundamentals throughout.
-
-🔐 **Full OAuth 2.0 Implementation**  
-Google sign-in via AWS Cognito — authorization code flow, JWT validation, protected routes, token expiry handling. Real-world authentication pattern.
-
-🛠️ **End-to-End Content Management**  
-Admin writes directly to S3 via a JWT-protected Lambda API. CloudFront cache is programmatically invalidated on every save. Staff edits are live in seconds.
-
-♿ **Accessibility First**  
-WCAG 2.1 AA compliant — keyboard navigation, ARIA labels, semantic HTML, screen reader support.
-
-📱 **Mobile-First Responsive**  
-Hamburger menu, touch-friendly UI, tested across screen sizes.
-
-☁️ **Production AWS Infrastructure**  
-S3 + CloudFront + API Gateway + Lambda + Cognito + IAM — complete IaC via `setup.sh`.
-
-📚 **AI-Ready Knowledge Base**  
-50 structured Q&A pairs with metadata (id, category, tags) ready for RAG/vector DB integration.
-
----
-
-## File Structure
-
-```
-spa_test_website/
-├── index.html               ← Landing page
-├── treatments.html          ← Treatment catalog + filter
-├── services.html            ← Memberships + pricing
-├── about.html               ← Story, team, values
-├── contact.html             ← Booking form + hours
-├── faq.html                 ← 25+ FAQ accordions
-├── css/
-│   └── styles.css           ← Main stylesheet
-├── js/
-│   └── main.js              ← Main site JavaScript
-├── admin/                   ← Admin panel (OAuth protected)
-│   ├── index.html           ← Login page (Google OAuth)
-│   ├── dashboard.html       ← Editor hub
-│   ├── treatments-editor.html
-│   ├── pricing-editor.html
-│   ├── hours-editor.html
-│   ├── team-editor.html
-│   ├── faq-editor.html
-│   ├── knowledge-base-editor.html
-│   ├── css/
-│   │   └── admin-styles.css
-│   └── js/
-│       ├── admin-config.js  ← Auto-generated by setup.sh
-│       ├── admin-auth.js    ← Cognito JWT auth
-│       ├── admin-main.js    ← Shared UI utilities
-│       └── *-editor.js      ← Per-page editor logic
-├── lambda/
-│   ├── index.js             ← Lambda handler (S3 + CF)
-│   └── package.json
-├── knowledge-base.md        ← 50 Q&As for RAG systems
-├── aws-deploy.md            ← Main site AWS setup guide
-├── README-admin.md          ← Admin panel setup guide
-├── package.json
-└── .gitignore
-```
-
-> `setup.sh` and `aws-deploy.sh` are excluded from git (contain credentials).
-
----
-
-## License & Attribution
-
-**Serenity Spa & Wellness** is a fictional business created for portfolio demonstration.
-
-This code is open for reference and learning. Credit appreciated but not required.
-
-```
-Built with: HTML5, CSS3, Vanilla JavaScript, Node.js
-Auth:       AWS Cognito + Google OAuth 2.0
-Deployed:   AWS S3 + CloudFront + Lambda + API Gateway
-```
-
----
-
-## Questions?
-
-📧 Contact: [Your Portfolio Email]  
-🔗 Portfolio: [Your Portfolio URL]  
-💼 LinkedIn: [Your LinkedIn]
+Built with HTML5, CSS3, vanilla JavaScript and Node.js · Auth: AWS Cognito + Google OAuth 2.0 · Hosted on S3 + CloudFront · API: API Gateway + Lambda
