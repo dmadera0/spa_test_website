@@ -1,6 +1,17 @@
 /**
- * Serenity Spa & Wellness — Chat Widget
- * serenity-widget.js
+ * Serenity Spa & Wellness — Chat Widget (serenity-widget.js)
+ * ------------------------------------------------------------
+ * A self-contained, embeddable chat bubble. Drop in one <script> tag, then call:
+ *
+ *   DemoChat.init({ apiUrl: 'https://xxxx.execute-api.us-east-1.amazonaws.com',
+ *                   tenantId: 'my-business', primaryColor: '#6b5b95' });
+ *
+ * It injects its own CSS (all IDs/classes prefixed "sw-" to avoid clashing with
+ * the host page), builds the launcher button + chat panel, and POSTs each
+ * message to `${apiUrl}/prod/serenity-spa` as { sessionId, userId, message },
+ * expecting `{ response: "..." }` back.
+ *
+ * Written as an ES5 IIFE (no build step) so it runs on any site it's embedded in.
  */
 (function (global) {
   'use strict';
@@ -15,6 +26,7 @@
     return 'sess-' + Math.random().toString(36).slice(2, 10) + '-' + Date.now();
   }
 
+  // Every message is escaped before display so chat text can't inject HTML.
   function escapeHtml(str) {
     return String(str)
       .replace(/&/g, '&amp;')
@@ -23,6 +35,7 @@
       .replace(/"/g, '&quot;');
   }
 
+  // Lighten (+pct) or darken (-pct) a hex color; used to derive the header gradient.
   function shadeColor(hex, pct) {
     var num = parseInt(hex.replace('#', ''), 16);
     var r = Math.min(255, Math.max(0, (num >> 16) + pct));
@@ -31,6 +44,7 @@
     return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
   }
 
+  // Adds the widget's stylesheet (minified inline so the widget is a single file).
   function injectStyles(primary, accent) {
     var style = document.createElement('style');
     style.id = 'serenity-widget-styles';
@@ -118,6 +132,7 @@
     msgs.scrollTop = msgs.scrollHeight;
   }
 
+  // Show the user's message, call the chat API, then render the reply (or an error).
   function sendMessage() {
     var input = document.getElementById('sw-input');
     var sendBtn = document.getElementById('sw-send');
@@ -133,7 +148,7 @@
     showTyping();
 
     var base = cfg.apiUrl.replace(/\/$/, '');
-    var endpoint = base + '/prod/serenity-spa';
+    var endpoint = base + '/prod/serenity-spa'; // API Gateway stage + route
 
     fetch(endpoint, {
       method: 'POST',
@@ -157,6 +172,8 @@
       });
   }
 
+  // Public entry point: DemoChat.init(options). Only apiUrl is required.
+  // Note: `position` is accepted but the widget currently always renders bottom-right.
   function init(options) {
     if (!options || !options.apiUrl) { console.error('[SerenityWidget] apiUrl is required.'); return; }
     cfg = {

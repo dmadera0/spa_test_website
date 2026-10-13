@@ -27,6 +27,7 @@ aws-deploy.sh
 
 # Build artifacts
 dist/
+*.zip
 build/
 *.min.css
 *.min.js
