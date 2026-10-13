@@ -1,22 +1,33 @@
-// Treatments Editor
-// Handles loading and editing spa treatments
+/**
+ * Treatments Editor (treatments-editor.js)
+ * ------------------------------------------------------------
+ * Lists, adds, edits and deletes spa treatments, then saves treatments.html
+ * through the admin API.
+ *
+ * ⚠️ KNOWN LIMITATION: this editor reads cards marked with
+ * `data-treatment-id` / `.treatment-name`, but the live treatments.html uses
+ * `<article class="treatment-card">` with an <h3> and free-text prices, so the
+ * list loads empty. It also generates a fragment of cards rather than a full
+ * page — the Lambda now rejects that (HTTP 422) instead of overwriting the
+ * live page. See "Known limitations" in README.md for the planned fix.
+ */
 
 const TreatmentsEditor = {
   treatments: [],
+  editingIdx: null, // index of the treatment being edited, null when adding
 
   async init() {
     await this.loadTreatments();
     this.setupForm();
   },
 
-  // Load treatments from API
   async loadTreatments() {
     try {
       const response = await AdminAuth.request('/admin/api/content?file=treatments.html');
       if (!response) return;
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-      const html = await response.text();
-      this.parseTreatments(html);
+      this.parseTreatments(await response.text());
       this.renderTreatmentsList();
     } catch (error) {
       console.error('Failed to load treatments:', error);
@@ -24,23 +35,21 @@ const TreatmentsEditor = {
     }
   },
 
-  // Parse treatments from HTML
+  // Pull treatment data out of the page's HTML using DOMParser (no regex scraping).
   parseTreatments(html) {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
+    const doc = new DOMParser().parseFromString(html, 'text/html');
     const cards = doc.querySelectorAll('[data-treatment-id]');
 
     this.treatments = Array.from(cards).map(card => ({
       id: card.getAttribute('data-treatment-id'),
       category: card.getAttribute('data-category'),
-      name: card.querySelector('.treatment-name')?.textContent || '',
-      description: card.querySelector('.treatment-description')?.textContent || '',
-      duration: parseInt(card.getAttribute('data-duration')) || 60,
+      name: card.querySelector('.treatment-name')?.textContent.trim() || '',
+      description: card.querySelector('.treatment-description')?.textContent.trim() || '',
+      duration: parseInt(card.getAttribute('data-duration'), 10) || 60,
       price: parseFloat(card.getAttribute('data-price')) || 0
     }));
   },
 
-  // Render treatments list
   renderTreatmentsList() {
     const list = document.getElementById('treatments-list');
     if (!list) return;
@@ -50,13 +59,14 @@ const TreatmentsEditor = {
       return;
     }
 
-    list.innerHTML = this.treatments.map((treatment, idx) => `
+    const esc = AdminUI.escapeHtml;
+    list.innerHTML = this.treatments.map((t, idx) => `
       <div class="list-item">
         <div class="list-item-info">
-          <h4>${this.escapeHtml(treatment.name)}</h4>
-          <p>${this.escapeHtml(treatment.description.substring(0, 100))}...</p>
+          <h4>${esc(t.name)}</h4>
+          <p>${esc(t.description.substring(0, 100))}...</p>
           <p style="margin-top: 0.5rem; font-size: 0.85rem; color: #999;">
-            ${treatment.duration}min • $${treatment.price.toFixed(2)} • ${this.getCategoryLabel(treatment.category)}
+            ${t.duration}min • $${t.price.toFixed(2)} • ${esc(this.getCategoryLabel(t.category))}
           </p>
         </div>
         <div class="list-item-actions">
@@ -67,106 +77,82 @@ const TreatmentsEditor = {
     `).join('');
   },
 
-  // Setup form handling
   setupForm() {
     const form = document.getElementById('new-treatment-form');
-    if (form) {
-      form.addEventListener('submit', (e) => this.handleFormSubmit(e));
-    }
+    if (!form) return;
+    // A single submit handler covers both add and update (see editingIdx).
+    // Previously "edit" also set form.onsubmit, so both handlers fired and
+    // updating a treatment added a duplicate copy.
+    form.addEventListener('submit', (e) => this.handleFormSubmit(e));
+    form.addEventListener('reset', () => this.exitEditMode()); // "Clear" button
   },
 
-  // Handle form submission
   async handleFormSubmit(e) {
     e.preventDefault();
+    const form = e.target;
+    const formData = new FormData(form);
 
-    const formData = new FormData(e.target);
-    const newTreatment = {
-      id: `treatment-${Date.now()}`,
+    const data = {
       name: formData.get('name'),
       category: formData.get('category'),
       description: formData.get('description'),
-      duration: parseInt(formData.get('duration')),
+      duration: parseInt(formData.get('duration'), 10),
       price: parseFloat(formData.get('price'))
     };
 
-    this.treatments.push(newTreatment);
-    await this.saveTreatments();
-    e.target.reset();
+    if (this.editingIdx !== null) {
+      Object.assign(this.treatments[this.editingIdx], data);
+    } else {
+      this.treatments.push({ id: `treatment-${Date.now()}`, ...data });
+    }
+
+    if (await this.saveTreatments()) form.reset();
     this.renderTreatmentsList();
   },
 
-  // Edit treatment
   editTreatment(idx) {
-    const treatment = this.treatments[idx];
-    if (!treatment) return;
+    const t = this.treatments[idx];
+    if (!t) return;
 
     const form = document.getElementById('new-treatment-form');
-    form.name.value = treatment.name;
-    form.category.value = treatment.category;
-    form.description.value = treatment.description;
-    form.duration.value = treatment.duration;
-    form.price.value = treatment.price.toFixed(2);
+    // Use form.elements: `form.name` is the <form>'s own name attribute, not the "name" input.
+    const fields = form.elements;
+    fields['name'].value = t.name;
+    fields['category'].value = t.category;
+    fields['description'].value = t.description;
+    fields['duration'].value = t.duration;
+    fields['price'].value = t.price.toFixed(2);
 
+    this.editingIdx = idx;
+    form.querySelector('button[type="submit"]').textContent = 'Update Treatment';
     form.scrollIntoView({ behavior: 'smooth' });
-
-    const submitBtn = form.querySelector('button[type="submit"]');
-    submitBtn.textContent = 'Update Treatment';
-
-    form.onsubmit = async (e) => {
-      e.preventDefault();
-      treatment.name = form.name.value;
-      treatment.category = form.category.value;
-      treatment.description = form.description.value;
-      treatment.duration = parseInt(form.duration.value);
-      treatment.price = parseFloat(form.price.value);
-
-      await this.saveTreatments();
-      form.reset();
-      submitBtn.textContent = 'Add Treatment';
-      form.onsubmit = (e) => this.handleFormSubmit(e);
-      this.renderTreatmentsList();
-    };
   },
 
-  // Delete treatment
-  deleteTreatment(idx) {
-    if (confirm('Are you sure you want to delete this treatment?')) {
-      this.treatments.splice(idx, 1);
-      this.saveTreatments();
-      this.renderTreatmentsList();
-    }
+  exitEditMode() {
+    this.editingIdx = null;
+    const btn = document.querySelector('#new-treatment-form button[type="submit"]');
+    if (btn) btn.textContent = 'Add Treatment';
   },
 
-  // Save treatments to API
-  async saveTreatments() {
-    try {
-      AdminUI.showToast('Saving treatments...', 'info');
-
-      const response = await AdminAuth.request('/admin/api/content', {
-        method: 'PUT',
-        body: JSON.stringify({
-          file: 'treatments.html',
-          content: this.generateTreatmentsHTML()
-        })
-      });
-
-      if (!response || !response.ok) {
-        throw new Error('Save failed');
-      }
-
-      AdminUI.showToast('Treatments saved successfully!', 'success');
-    } catch (error) {
-      console.error('Failed to save treatments:', error);
-      AdminUI.showToast('Failed to save treatments', 'error');
-    }
+  async deleteTreatment(idx) {
+    if (!confirm('Are you sure you want to delete this treatment?')) return;
+    this.treatments.splice(idx, 1);
+    this.exitEditMode();
+    this.renderTreatmentsList();
+    await this.saveTreatments();
   },
 
-  // Generate HTML for treatments
+  saveTreatments() {
+    return AdminUI.saveFile('treatments.html', this.generateTreatmentsHTML(), 'treatments');
+  },
+
+  // Markup for the cards (a fragment — see KNOWN LIMITATION at the top).
   generateTreatmentsHTML() {
+    const esc = AdminUI.escapeHtml;
     return this.treatments.map(t => `
-      <div class="treatment-card" data-treatment-id="${t.id}" data-category="${t.category}" data-duration="${t.duration}" data-price="${t.price}">
-        <h3 class="treatment-name">${this.escapeHtml(t.name)}</h3>
-        <p class="treatment-description">${this.escapeHtml(t.description)}</p>
+      <div class="treatment-card" data-treatment-id="${esc(t.id)}" data-category="${esc(t.category)}" data-duration="${t.duration}" data-price="${t.price}">
+        <h3 class="treatment-name">${esc(t.name)}</h3>
+        <p class="treatment-description">${esc(t.description)}</p>
         <div class="treatment-meta">
           <span>${t.duration} min</span>
           <span>$${t.price.toFixed(2)}</span>
@@ -175,21 +161,12 @@ const TreatmentsEditor = {
     `).join('\n');
   },
 
-  // Get category label
   getCategoryLabel(cat) {
     const labels = { massage: 'Massage', skin: 'Skin Care', wellness: 'Wellness' };
     return labels[cat] || cat;
-  },
-
-  // Escape HTML
-  escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
   }
 };
 
-// Initialize when DOM is ready
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => TreatmentsEditor.init());
 } else {

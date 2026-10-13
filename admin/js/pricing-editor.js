@@ -1,5 +1,15 @@
-// Pricing Editor
-// Handles editing membership tiers and pricing
+/**
+ * Pricing Editor (pricing-editor.js)
+ * ------------------------------------------------------------
+ * Edits membership tiers (name, monthly price, description, benefits) and
+ * shows the pricing-related FAQ entries for reference.
+ *
+ * ⚠️ KNOWN LIMITATION: this editor targets `pricing.html`, which doesn't exist —
+ * membership tiers live in services.html — and the file isn't in the Lambda's
+ * ALLOWED_FILES whitelist, so loads/saves are rejected with HTTP 400.
+ * Pointing it at services.html needs the parser updated to that page's markup
+ * first. See README "Known limitations".
+ */
 
 const PricingEditor = {
   pricingTiers: [],
@@ -177,27 +187,8 @@ const PricingEditor = {
   },
 
   // Save pricing
-  async savePricing() {
-    try {
-      AdminUI.showToast('Saving pricing...', 'info');
-
-      const response = await AdminAuth.request('/admin/api/content', {
-        method: 'PUT',
-        body: JSON.stringify({
-          file: 'pricing.html',
-          content: this.generatePricingHTML()
-        })
-      });
-
-      if (!response || !response.ok) {
-        throw new Error('Save failed');
-      }
-
-      AdminUI.showToast('Pricing saved successfully!', 'success');
-    } catch (error) {
-      console.error('Failed to save pricing:', error);
-      AdminUI.showToast('Failed to save pricing', 'error');
-    }
+  savePricing() {
+    return AdminUI.saveFile('pricing.html', this.generatePricingHTML(), 'pricing');
   },
 
   // Generate pricing HTML
@@ -223,11 +214,8 @@ const PricingEditor = {
     submitBtn.textContent = 'Update Tier';
   },
 
-  // Escape HTML
   escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
+    return AdminUI.escapeHtml(text);
   }
 };
 
